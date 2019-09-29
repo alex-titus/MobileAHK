@@ -35,16 +35,68 @@ bluestacks_bottom_right_y = %A_ScreenHeight% ;Imagesearch will output y coordina
 
 ; Script ================================================================================
 findBluestacks() ;Find bluestacks so we know where to search for images
-Gui, Add, Button, w300 y20 gFindBluestacks, Find Bluestacks
+Gui, Add, Button, x2 y9 w150 h70 gFletching, Fletching
+Gui, Add, Button, x2 y89 w150 h70 , Crafting
+Gui, Add, Button, x2 y169 w150 h70 , Magic
+Gui, Add, Button, x2 y249 w150 h70 gHerbCleaning, Herb Cleaning
+Gui, Add, DropDownList, x162 y9 w120 h21 , DropDownList
+Gui, Add, DropDownList, x162 y89 w120 h21 , DropDownList
+Gui, Add, DropDownList, x162 y169 w120 h21 , DropDownList
+Gui, Add, DropDownList, x162 y249 w120 h21 , DropDownList
 
 Gui, Show, , Mobile OSRS AHK Bot
 return ;End automatic execution
+
+F12::
+  log("Exiting...")
+  ExitApp
 ; =======================================================================================
 
 ; Labels ================================================================================
-findBluestacks:
-  findBluestacks()
+HerbCleaning:
+  Loop {
+    bank_x = 0
+    bank_y = 0
+    inventoryDrop("grimy_marrentil.png")
+    RandSleep(243, 482)
+    Random, bank_x, 600, 860
+    Random, bank_y, 115, 566
+    MouseClick, Left, bank_x, bank_y
+    RandSleep(800, 1113)
+    click("bank_inventory.png")
+    RandSleep(113, 254)
+    click("grimy_marrentil.png")
+    RandSleep(123, 193)
+    click("bank_close.png")
+    RandSleep(340, 745)
+  }
   return
+
+Fletching:
+Loop {
+  bank_x = 0
+  bank_y = 0
+  click("knife.png")
+  RandSleep(243, 482)
+  click("maple_logs.png")
+  RandSleep(842, 1110)
+  if (click("maple_longbow_u.png") == 0){
+    RandSleep(47000, 57000)
+  }
+  Random, bank_x, 600, 860
+  Random, bank_y, 315, 600
+  MouseClick, Left, bank_x, bank_y
+  MouseClick, Left, bank_x, bank_y
+  RandSleep(800, 1113)
+  click("bank_inventory.png")
+  RandSleep(113, 254)
+  click("maple_logs.png")
+  RandSleep(123, 193)
+  click("bank_close.png")
+  RandSleep(340, 745)
+}
+return
+
 
 GuiEscape:
 GuiClose:
@@ -96,11 +148,11 @@ inventoryDrop(item){
   randX = 0 ;Init value for randX
   randY = 0 ;Init value for randY
 	while (totalClicks < 28){
-		ImageSearch, output_x, output_y, move_temp_x, output_y, %A_ScreenWidth%, %A_ScreenHeight%, *40 %A_WorkingDir%\images\%item%
+		ImageSearch, output_x, output_y, move_temp_x, output_y, %A_ScreenWidth%, %A_ScreenHeight%, *60 %A_WorkingDir%\images\%item%
 		;log("found at x:" output_x " y:" output_y) ;Logs current coords of the item
 		items_in_row := items_in_row + 1
-		Random, randX, 0, 35 ;Random x value increment for humanlike difference
-		Random, randY, 0, 35 ;Random y value increment for humanlike difference
+		Random, randX, 0, 38 ;Random x value increment for humanlike difference
+		Random, randY, -5, 20 ;Random y value increment for humanlike difference
 		tempX := output_x + randX ;Adds our random value to ImageSearch's found coords
 		tempY := output_y + randY ;Adds our random value to ImageSearch's found coords
 		MouseMove, tempX, tempY
@@ -123,7 +175,7 @@ inventoryDrop(item){
       ;Start our search for next item 60 pixels greater than where the last was found
 			move_temp_x := output_x + 60
     }
-		RandSleep(85, 140)
+		;RandSleep(15, 37)
 		totalClicks++
 	}
 }
@@ -131,20 +183,20 @@ inventoryDrop(item){
 click(text){
   output_x = 0 ;ImageSearch will output x coordinates here
   output_y = 0 ;Imagesearch will output y coordinates here
-  global bluestacks_top_left_x = 0 ;ImageSearch will start the search from here
-  global bluestacks_top_left_y = 0 ;ImageSearch will start the search from here
-  global bluestacks_bottom_right_x = 0 ;ImageSearch will start the search from here
-  global bluestacks_bottom_right_y = 0 ;ImageSearch will start the search from here
-
-  ImageSearch, output_x, output_y, bluestacks_top_left_x, bluestacks_top_left_y, bluestacks_bottom_right_x, bluestacks_bottom_right_y, *40 %A_WorkingDir%\images\%text%
-  ;log("found at x:" output_x " y:" output_y) ;Logs current coords of the item
-  Random, randX, -5, 15 ;Random x value increment for humanlike difference
-  Random, randY, 0, 35 ;Random y value increment for humanlike difference
-  tempX := output_x + randX ;Adds our random value to ImageSearch's found coords
-  tempY := output_y + randY ;Adds our random value to ImageSearch's found coords
-  MouseMove, tempX, tempY
-  Click
-
+  ImageSearch, output_x, output_y, 0, 0, 1920, 1080, *40 %A_WorkingDir%\images\%text%
+  if(ErrorLevel = 0){
+    log("found at x:" output_x " y:" output_y) ;Logs current coords of the item
+    Random, randX, 0, 20 ;Random x value increment for humanlike difference
+    Random, randY, 0, 30 ;Random y value increment for humanlike difference
+    tempX := output_x + randX ;Adds our random value to ImageSearch's found coords
+    tempY := output_y + randY ;Adds our random value to ImageSearch's found coords
+    MouseMove, tempX, tempY
+    Click
+    return 0
+  } else if (ErrorLevel = 1){
+    log(text " not found")
+    return 1
+  }
 }
 
 findInBank(item){
