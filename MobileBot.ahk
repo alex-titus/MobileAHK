@@ -148,10 +148,10 @@ inventoryDrop(item){
   randX = 0 ;Init value for randX
   randY = 0 ;Init value for randY
 	while (totalClicks < 28){
-		ImageSearch, output_x, output_y, move_temp_x, output_y, %A_ScreenWidth%, %A_ScreenHeight%, *60 %A_WorkingDir%\images\%item%
+		ImageSearch, output_x, output_y, move_temp_x, output_y, %A_ScreenWidth%, %A_ScreenHeight%, *40 %A_WorkingDir%\images\%item%
 		;log("found at x:" output_x " y:" output_y) ;Logs current coords of the item
 		items_in_row := items_in_row + 1
-		Random, randX, 0, 38 ;Random x value increment for humanlike difference
+		Random, randX, 1, 40 ;Random x value increment for humanlike difference
 		Random, randY, -5, 20 ;Random y value increment for humanlike difference
 		tempX := output_x + randX ;Adds our random value to ImageSearch's found coords
 		tempY := output_y + randY ;Adds our random value to ImageSearch's found coords
@@ -163,19 +163,19 @@ inventoryDrop(item){
 			total_errors++
 		}
 		if (total_errors == 2){ ;If we haven't found the item in 2 times, exit
-			break
+			;break
 		}
 
 		if (items_in_row == 4){
       ;If we found 4 items in a row, go down and over to next row
 			output_y := output_y + 40
-			move_temp_x := output_x - 240
+			move_temp_x := output_x - 250
 			items_in_row := 0
 		} else {
       ;Start our search for next item 60 pixels greater than where the last was found
 			move_temp_x := output_x + 60
     }
-		;RandSleep(15, 37)
+		RandSleep(15, 37)
 		totalClicks++
 	}
 }
