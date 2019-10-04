@@ -57,17 +57,17 @@ HerbCleaning:
   Loop {
     bank_x = 0
     bank_y = 0
-    inventoryDrop("grimy_marrentil.png")
+    inventoryClick("grimy_marrentil.png", 27, 21)
     RandSleep(243, 482)
     Random, bank_x, 600, 860
     Random, bank_y, 115, 566
     MouseClick, Left, bank_x, bank_y
     RandSleep(800, 1113)
-    click("bank_inventory.png")
+    click("bank_inventory.png", 55, 56)
     RandSleep(113, 254)
-    click("grimy_marrentil.png")
+    click("grimy_marrentil.png", 27, 21)
     RandSleep(123, 193)
-    click("bank_close.png")
+    click("bank_close.png", 34, 34)
     RandSleep(340, 745)
   }
   return
@@ -76,11 +76,11 @@ Fletching:
 Loop {
   bank_x = 0
   bank_y = 0
-  click("knife.png")
+  click("knife.png", 20, 20)
   RandSleep(243, 482)
-  click("maple_logs.png")
+  click("maple_logs.png", 32, 21)
   RandSleep(842, 1110)
-  if (click("maple_longbow_u.png") == 0){
+  if (click("maple_longbow_u.png", 80, 96) == 0){
     RandSleep(47000, 57000)
   }
   Random, bank_x, 600, 860
@@ -88,11 +88,11 @@ Loop {
   MouseClick, Left, bank_x, bank_y
   MouseClick, Left, bank_x, bank_y
   RandSleep(800, 1113)
-  click("bank_inventory.png")
+  click("bank_inventory.png", 55, 56)
   RandSleep(113, 254)
-  click("maple_logs.png")
+  click("maple_logs.png", 32, 21)
   RandSleep(123, 193)
-  click("bank_close.png")
+  click("bank_close.png", 34, 34)
   RandSleep(340, 745)
 }
 return
@@ -137,7 +137,7 @@ findBluestacks(){
   }
 }
 
-inventoryDrop(item){
+inventoryClick(item, size_x, size_y){
 	totalClicks = 0 ;Total amount of times the item has been found
 	items_in_row = 0 ;Counting the amount of times in a row the items has been found
 	total_errors = 0 ;Calculating total errors, allows for early terminatino
@@ -148,53 +148,53 @@ inventoryDrop(item){
   randX = 0 ;Init value for randX
   randY = 0 ;Init value for randY
 	while (totalClicks < 28){
-		ImageSearch, output_x, output_y, move_temp_x, output_y, %A_ScreenWidth%, %A_ScreenHeight%, *40 %A_WorkingDir%\images\%item%
-		;log("found at x:" output_x " y:" output_y) ;Logs current coords of the item
+		ImageSearch, output_x, output_y, move_temp_x, output_y, %A_ScreenWidth%, %A_ScreenHeight%, *45 %A_WorkingDir%\images\%item%
+		log("found at x:" output_x " y:" output_y) ;Logs current coords of the item
 		items_in_row := items_in_row + 1
-		Random, randX, 1, 40 ;Random x value increment for humanlike difference
-		Random, randY, -5, 20 ;Random y value increment for humanlike difference
+		Random, randX, 1, size_x ;Random x value increment for humanlike difference
+		Random, randY, 1, size_y ;Random y value increment for humanlike difference
 		tempX := output_x + randX ;Adds our random value to ImageSearch's found coords
 		tempY := output_y + randY ;Adds our random value to ImageSearch's found coords
-		MouseMove, tempX, tempY
 		if (ErrorLevel = 0){ ;The item was found on screen
+      MouseMove, tempX, tempY
 			Click
 		}
 		if (ErrorLevel = 1){ ;The item wasn't found on screen
 			total_errors++
 		}
-		if (total_errors == 2){ ;If we haven't found the item in 2 times, exit
-			;break
+		if (total_errors == 4){ ;If we haven't found the item in 2 times, exit
+			break
 		}
 
 		if (items_in_row == 4){
       ;If we found 4 items in a row, go down and over to next row
-			output_y := output_y + 40
-			move_temp_x := output_x - 250
+			output_y := output_y + 25
+			move_temp_x := output_x - 240
 			items_in_row := 0
 		} else {
-      ;Start our search for next item 60 pixels greater than where the last was found
-			move_temp_x := output_x + 60
+      ;Start our search for next item 1 pixels greater than where the last was found
+			move_temp_x := output_x + 25
     }
-		RandSleep(15, 37)
+		RandSleep(20, 45)
 		totalClicks++
 	}
 }
 
-click(text){
+click(image, size_x, size_y){
   output_x = 0 ;ImageSearch will output x coordinates here
   output_y = 0 ;Imagesearch will output y coordinates here
-  ImageSearch, output_x, output_y, 0, 0, 1920, 1080, *40 %A_WorkingDir%\images\%text%
+  ImageSearch, output_x, output_y, 0, 0, 1920, 1080, *40 %A_WorkingDir%\images\%image%
   if(ErrorLevel = 0){
     log("found at x:" output_x " y:" output_y) ;Logs current coords of the item
-    Random, randX, 0, 20 ;Random x value increment for humanlike difference
-    Random, randY, 0, 30 ;Random y value increment for humanlike difference
+    Random, randX, 1, size_x - 1 ;Random x value increment for humanlike difference
+    Random, randY, 1, size_y - 1 ;Random y value increment for humanlike difference
     tempX := output_x + randX ;Adds our random value to ImageSearch's found coords
     tempY := output_y + randY ;Adds our random value to ImageSearch's found coords
     MouseMove, tempX, tempY
     Click
     return 0
   } else if (ErrorLevel = 1){
-    log(text " not found")
+    log(image " not found")
     return 1
   }
 }
