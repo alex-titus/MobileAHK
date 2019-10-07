@@ -31,6 +31,7 @@ bluestacks_top_left_x = 0 ;ImageSearch will output x coordinats of top left corn
 bluestacks_top_left_y = 0 ;Imagesearch will output y coordinate of top left corner of bluestacks here
 bluestacks_bottom_right_x = %A_ScreenWidth% ;ImageSearch will output x coordinate of bottom right corner of bluestacks here
 bluestacks_bottom_right_y = %A_ScreenHeight% ;Imagesearch will output y coordinate of bottom right corner of bluestacks here
+BreakLoop = 0 ;Used for breaking out of looping functions without exiting program
 ; =======================================================================================
 
 ; Script ================================================================================
@@ -48,23 +49,31 @@ Gui, Show, , Mobile OSRS AHK Bot
 return ;End automatic execution
 
 F12::
-  log("Exiting...")
+  log("Breaking loop...")
+  BreakLoop = 1
+  return
+
+ESC::
   ExitApp
 ; =======================================================================================
 
 ; Labels ================================================================================
 HerbCleaning:
+  BreakLoop = 0
   Loop {
+    if (BreakLoop = 1){
+      break
+    }
     bank_x = 0
     bank_y = 0
     inventoryClick("grimy_marrentil.png", 27, 21)
     RandSleep(243, 482)
-    Random, bank_x, 600, 860
-    Random, bank_y, 115, 566
+    Random, bank_x, 580, 830
+    Random, bank_y, 380, 600
     MouseClick, Left, bank_x, bank_y
     RandSleep(800, 1113)
     click("bank_inventory.png", 55, 56)
-    RandSleep(113, 254)
+    RandSleep(353, 454)
     click("grimy_marrentil.png", 27, 21)
     RandSleep(123, 193)
     click("bank_close.png", 34, 34)
@@ -74,6 +83,9 @@ HerbCleaning:
 
 Fletching:
 Loop {
+  if (BreakLoop = 1){
+    break
+  }
   bank_x = 0
   bank_y = 0
   click("knife.png", 20, 20)
@@ -83,17 +95,18 @@ Loop {
   if (click("maple_longbow_u.png", 80, 96) == 0){
     RandSleep(47000, 57000)
   }
-  Random, bank_x, 600, 860
-  Random, bank_y, 315, 600
+  Random, bank_x, 530, 380
+  Random, bank_y, 830, 660
   MouseClick, Left, bank_x, bank_y
   MouseClick, Left, bank_x, bank_y
-  RandSleep(800, 1113)
-  click("bank_inventory.png", 55, 56)
-  RandSleep(113, 254)
-  click("maple_logs.png", 32, 21)
-  RandSleep(123, 193)
-  click("bank_close.png", 34, 34)
-  RandSleep(340, 745)
+  RandSleep(900, 1113)
+  if (click("bank_inventory.png", 55, 56) = 1){
+    RandSleep(113, 254)
+    click("maple_logs.png", 32, 21)
+    RandSleep(123, 193)
+    click("bank_close.png", 34, 34)
+    RandSleep(340, 745)
+  }
 }
 return
 
@@ -151,8 +164,8 @@ inventoryClick(item, size_x, size_y){
 		ImageSearch, output_x, output_y, move_temp_x, output_y, %A_ScreenWidth%, %A_ScreenHeight%, *45 %A_WorkingDir%\images\%item%
 		log("found at x:" output_x " y:" output_y) ;Logs current coords of the item
 		items_in_row := items_in_row + 1
-		Random, randX, 1, size_x ;Random x value increment for humanlike difference
-		Random, randY, 1, size_y ;Random y value increment for humanlike difference
+		Random, randX, 2, size_x ;Random x value increment for humanlike difference
+		Random, randY, 2, size_y ;Random y value increment for humanlike difference
 		tempX := output_x + randX ;Adds our random value to ImageSearch's found coords
 		tempY := output_y + randY ;Adds our random value to ImageSearch's found coords
 		if (ErrorLevel = 0){ ;The item was found on screen
@@ -186,8 +199,8 @@ click(image, size_x, size_y){
   ImageSearch, output_x, output_y, 0, 0, 1920, 1080, *40 %A_WorkingDir%\images\%image%
   if(ErrorLevel = 0){
     log("found at x:" output_x " y:" output_y) ;Logs current coords of the item
-    Random, randX, 1, size_x - 1 ;Random x value increment for humanlike difference
-    Random, randY, 1, size_y - 1 ;Random y value increment for humanlike difference
+    Random, randX, 3, size_x - 2 ;Random x value increment for humanlike difference
+    Random, randY, 3, size_y - 2 ;Random y value increment for humanlike difference
     tempX := output_x + randX ;Adds our random value to ImageSearch's found coords
     tempY := output_y + randY ;Adds our random value to ImageSearch's found coords
     MouseMove, tempX, tempY
