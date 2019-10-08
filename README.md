@@ -10,9 +10,9 @@ If you're going to be using this, just remember:
 
 # Setting Up Everything
 # Unfortunately not working correctly as I can't resize Bluestacks correctly x)
-1. Open the Settings icon on the top right, and change resolution to this: ![Set your BlueStacks up like this](https://i.imgur.com/DuTdlXX.png)
-2. Set your background of your VM, PC, or whatever you're running it on as black!
+1. Set your background of your VM, PC, or whatever you're running it on as black!
 	* This will ensure there are no errors in image detection
 	* This isn't  100% needed, but will save some headaches for you.
-3. Download Windows DebugView (Only needed for seeing easy output of what the bot is doing! https://docs.microsoft.com/en-us/sysinternals/downloads/debugview
+2. Download Windows DebugView (Only needed for seeing easy output of what the bot is doing! https://docs.microsoft.com/en-us/sysinternals/downloads/debugview
+	* Change the * in Include to "AHK|" as follows:
 ![Filter like this:](https://i.imgur.com/4CeXFBw.png)
