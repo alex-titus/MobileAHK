@@ -76,6 +76,7 @@ HerbCleaning:
     Random, random_bank_x, bank_x1, bank_x2
     Random, random_bank_y, bank_y1, bank_y2
     MouseClick, Left, random_bank_x, random_bank_y
+    bellCurveClick(bank_x1, bank_x2, bank_y1, bank_y2)
     RandSleep(800, 1113)
     click("bank_inventory.png", 55, 56)
     RandSleep(353, 454)
@@ -265,39 +266,62 @@ askForBankCoords(){ ;Asks uses for an upper left and bottom right coords
   global bank_y1 ;Global variable to use for where the bank is for different bankstanding activies
   global bank_y2 ;Global variable to use for where the bank is for different bankstanding activies
 
-  MsgBox, Place your mouse on the upper left corner and press F11, then on bottom right and press F10
+  MsgBox, ,Bank Coordinate Finder, Place your mouse on the upper left corner and press F11, then on bottom right and press F10
   KeyWait, F11, d
   MouseGetPos, bank_x1, bank_y1
   KeyWait, F10, d
   MouseGetPos, bank_x2, bank_y2
 }
 
-bellCurveMove(dimension_x, dimension_y){ ;Attemps at creating standard deviation clicking
+bellCurveClick(dimension_x1, dimension_x2, dimension_y1, dimension_y2){ ;Attemps at creating standard deviation clicking
   ;This entire function will be used as a decent antiban. It's not very human
   ;for clicking on an object to be completely and utterly random.
   ;Usually we will gravitate towards the center of something.
-  ;1/20 chance it's on the extreme edge (N+3 or N-3, 5%)
-  ;6/20 chance it's on the normal edge (N+2 or N-2, 30%)
-  ;13/20 chance it's within a normal range (N+1 or N-1, 65%)
-
-  Random, random_number_x, 1, 20
-  if(random_number = 1 or random_number = 20){
-    Random, random_x, (dimension_x - dimension_x*.9), (dimension_x - dimension_x*.1)
-  } else if (random number > 1 and random_number < 8){
-    Random, random_x, (dimension_x - dimension_x*.7), (dimension_x - dimension_x*.3)
+  ;10/100 chance it's on the extreme edge (N+3 or N-3, 10%)
+  ;26/100 chance it's on the normal edge (N+2 or N-2, 26%)
+  ;64/100 chance it's within a normal range (N+1 or N-1, 64%)
+  average_x := (dimension_x1+dimension_x2)/2 ;Midpoint of the x
+  average_y := (dimension_y1+dimension_y2)/2 ;Midpoint of the y
+  distribution_x := (dimension_x2-dimension_x1)/6 ;StDev number
+  distribution_y := (dimension_y2-dimension_y1)/6 ;StDev number
+  ;MsgBox, average_x: %average_x% average_y: %average_y% distribution_x: %distribution_x% distribution_y: %distribution_y%
+  Random, random_number_x, 1, 100
+  if(random_number_x <= 5){
+    ;Generate clicking on far left
+    Random, random_x, dimension_x1, dimension_x1+distribution_x
+  } else if (random_number_x >= 95){
+    ;Generate clicking on far right
+    Random, random_x, dimension_x2-distribution_x, dimension_x2
+  } else if (random_number_x > 5) and (random_number_x < 19){
+    ;Generate clicking on moderate left
+    Random, random_x, dimension_x1+distribution_x, dimension_x1+(2*distribution_x)
+  } else if (random_number_x > 81) and (random_number_x < 95){
+    ;Generate clicking on moderate right
+    Random, random_x, dimension_x2-(2*distribution_x), dimension_x2-distribution_x
   } else {
-    Random, random_x, (dimension_x - dimension_x*.65), (dimension_x - dimension_x*.35)
+    ;Generate clicking in the middle somewhere
+    Random, random_x, dimension_x1+(2*distribution_x), dimension_x2-(2*distribution_x)
   }
 
-  Random, random_number_y, 1, 20
-  if(random_number = 1 or random_number = 20){
-    Random, random_y, (dimension_y - dimension_y*.9), (dimension_y - dimension_y*.1)
-  } else if (random number > 1 and random_number < 8){
-    Random, random_y, (dimension_y - dimension_y*.7), (dimension_y - dimension_y*.3)
+  Random, random_number_y, 1, 100
+  if(random_number_y < 5){
+    ;Generate clicking on far bottom
+    Random, random_y, dimension_y1, dimension_y1+distribution_y
+  } else if (random_number_y >= 95){
+    ;Generate clicking on far top
+    Random, random_y, dimension_y2-distribution_y, dimension_y2
+  } else if (random_number_y > 5) and (random_number_y < 19){
+    ;Generate clicking on moderate top
+    Random, random_y, dimension_y1+distribution_y, dimension_y1+(2*distribution_y)
+  } else if (random_number_y > 81) and (random_number_y < 95){
+    ;Generate clicking on moderate bottom
+    Random, random_y, dimension_y2-(2*distribution_y), dimension_y2-distribution_y
   } else {
-    Random, random_y, (dimension_y - dimension_y*.65), (dimension_y - dimension_y*.35)
+    ;Generate clicking in the middle somewhere
+    Random, random_y, dimension_y1+(2*distribution_y), dimension_y2-(2*distribution_y)
   }
-  MouseMove, random_y, random_x
+
+  MouseClick, left, random_x, random_y
 }
 
 antiban(){
