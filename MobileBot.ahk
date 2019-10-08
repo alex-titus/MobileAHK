@@ -37,7 +37,7 @@ BreakLoop = 0 ;Used for breaking out of looping functions without exiting progra
 ; Script ================================================================================
 findBluestacks() ;Find bluestacks so we know where to search for images
 Gui, Add, Button, x2 y9 w150 h70 gFletching, Fletching
-Gui, Add, Button, x2 y89 w150 h70 , Crafting
+Gui, Add, Button, x2 y89 w150 h70 gTesting, Testing
 Gui, Add, Button, x2 y169 w150 h70 , Magic
 Gui, Add, Button, x2 y249 w150 h70 gHerbCleaning, Herb Cleaning
 Gui, Add, DropDownList, x162 y9 w120 h21 , DropDownList
@@ -80,6 +80,10 @@ HerbCleaning:
     RandSleep(340, 745)
   }
   return
+
+Testing:
+    inventoryClick("yew_logs.png", 53, 39)
+    return
 
 Fletching:
 Loop {
@@ -161,7 +165,7 @@ inventoryClick(item, size_x, size_y){
   randX = 0 ;Init value for randX
   randY = 0 ;Init value for randY
 	while (totalClicks < 28){
-		ImageSearch, output_x, output_y, move_temp_x, output_y, %A_ScreenWidth%, %A_ScreenHeight%, *45 %A_WorkingDir%\images\%item%
+		ImageSearch, output_x, output_y, move_temp_x, output_y, %A_ScreenWidth%, %A_ScreenHeight%, *TransRed *35 %A_WorkingDir%\images\%item%
 		log("found at x:" output_x " y:" output_y) ;Logs current coords of the item
 		items_in_row := items_in_row + 1
 		Random, randX, 2, size_x ;Random x value increment for humanlike difference
@@ -196,7 +200,7 @@ inventoryClick(item, size_x, size_y){
 click(image, size_x, size_y){
   output_x = 0 ;ImageSearch will output x coordinates here
   output_y = 0 ;Imagesearch will output y coordinates here
-  ImageSearch, output_x, output_y, 0, 0, 1920, 1080, *40 %A_WorkingDir%\images\%image%
+  ImageSearch, output_x, output_y, 0, 0, 1920, 1080, *TransRed *40 %A_WorkingDir%\images\%image%
   if(ErrorLevel = 0){
     log("found at x:" output_x " y:" output_y) ;Logs current coords of the item
     Random, randX, 3, size_x - 2 ;Random x value increment for humanlike difference
