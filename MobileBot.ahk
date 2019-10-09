@@ -31,11 +31,11 @@ bluestacks_top_left_x = 0 ;ImageSearch will output x coordinats of top left corn
 bluestacks_top_left_y = 0 ;Imagesearch will output y coordinate of top left corner of bluestacks here
 bluestacks_bottom_right_x = %A_ScreenWidth% ;ImageSearch will output x coordinate of bottom right corner of bluestacks here
 bluestacks_bottom_right_y = %A_ScreenHeight% ;Imagesearch will output y coordinate of bottom right corner of bluestacks here
+BreakLoop = 0 ;Used for breaking out of looping functions without exiting program
 bank_x1 = 0 ;Global variable to use for where the bank is for different bankstanding activies
 bank_x2 = 0 ;Global variable to use for where the bank is for different bankstanding activies
 bank_y1 = 0 ;Global variable to use for where the bank is for different bankstanding activies
 bank_y2 = 0 ;Global variable to use for where the bank is for different bankstanding activies
-BreakLoop = 0 ;Used for breaking out of looping functions without exiting program
 ; =======================================================================================
 
 ; Script ================================================================================
@@ -63,9 +63,11 @@ ESC::
 
 ; Labels ================================================================================
 HerbCleaning:
+  global bank_x1 ;Global variable to use for where the bank is for different bankstanding activies
+  global bank_x2 ;Global variable to use for where the bank is for different bankstanding activies
+  global bank_y1 ;Global variable to use for where the bank is for different bankstanding activies
+  global bank_y2 ;Global variable to use for where the bank is for different bankstanding activies
   askForBankCoords()
-  bank_x = 0
-  bank_y = 0
   BreakLoop = 0
   Loop {
     if (BreakLoop = 1){ ;Used to break out of any function when pressing F12
@@ -73,22 +75,20 @@ HerbCleaning:
     }
     inventoryClick("grimy_marrentil.png", 27, 21)
     RandSleep(243, 482)
-    Random, random_bank_x, bank_x1, bank_x2
-    Random, random_bank_y, bank_y1, bank_y2
+    Random, random_bank_x, 576, 850
+    Random, random_bank_y, 365, 645
     MouseClick, Left, random_bank_x, random_bank_y
-    bellCurveClick(bank_x1, bank_x2, bank_y1, bank_y2)
-    RandSleep(800, 1113)
+    RandSleep(600, 993)
     click("bank_inventory.png", 55, 56)
     RandSleep(353, 454)
     click("grimy_marrentil.png", 27, 21)
     RandSleep(123, 193)
     click("bank_close.png", 34, 34)
-    RandSleep(340, 745)
+    RandSleep(540, 745)
   }
   return
 
 Testing:
-  askForBankCoords()
   return
 
 Fletching:
@@ -160,7 +160,7 @@ findBluestacks(){
   } ;Allows us to find Bluestacks, no real use yet tho
 }
 
-inventoryClick(item, size_x, size_y){
+inventoryClick(image, size_x, size_y){
 	totalClicks = 0 ;Total amount of times the item has been found
 	items_in_row = 0 ;Counting the amount of times in a row the items has been found
 	total_errors = 0 ;Calculating total errors, allows for early terminatino
@@ -171,7 +171,7 @@ inventoryClick(item, size_x, size_y){
   randX = 0 ;Init value for randX
   randY = 0 ;Init value for randY
 	while (totalClicks < 28){
-		ImageSearch, output_x, output_y, move_temp_x, output_y, %A_ScreenWidth%, %A_ScreenHeight%, *TransRed *35 %A_WorkingDir%\images\%item%
+		ImageSearch, output_x, output_y, move_temp_x, output_y, 1920, 1080, *TransRed *45 %A_WorkingDir%\images\%image%
 		log("found at x:" output_x " y:" output_y) ;Logs current coords of the item
 		items_in_row := items_in_row + 1
 		Random, randX, 2, size_x ;Random x value increment for humanlike difference
@@ -183,6 +183,7 @@ inventoryClick(item, size_x, size_y){
 			Click
 		}
 		if (ErrorLevel = 1){ ;The item wasn't found on screen
+      log("Wasn't found on scren")
 			total_errors++
 		}
 		if (total_errors == 4){ ;If we haven't found the item in 2 times, exit
@@ -206,7 +207,7 @@ inventoryClick(item, size_x, size_y){
 click(image, size_x, size_y){
   output_x = 0 ;ImageSearch will output x coordinates here
   output_y = 0 ;Imagesearch will output y coordinates here
-  ImageSearch, output_x, output_y, 0, 0, 1920, 1080, *TransRed *40 %A_WorkingDir%\images\%image%
+  ImageSearch, output_x, output_y, 0, 0, 1920, 1080, *TransRed *45 %A_WorkingDir%\images\%image%
   if(ErrorLevel = 0){
     log("found at x:" output_x " y:" output_y) ;Logs current coords of the item
     Random, randX, 3, size_x - 2 ;Random x value increment for humanlike difference
@@ -260,19 +261,6 @@ findInBank(item){
   } ;Used to find if an item is found in the bank, can also set bank coords for future use ;If you're trying to find in bank a certain item (check for 0)
 }
 
-askForBankCoords(){ ;Asks uses for an upper left and bottom right coords
-  global bank_x1 ;Global variable to use for where the bank is for different bankstanding activies
-  global bank_x2 ;Global variable to use for where the bank is for different bankstanding activies
-  global bank_y1 ;Global variable to use for where the bank is for different bankstanding activies
-  global bank_y2 ;Global variable to use for where the bank is for different bankstanding activies
-
-  MsgBox, ,Bank Coordinate Finder, Place your mouse on the upper left corner and press F11, then on bottom right and press F10
-  KeyWait, F11, d
-  MouseGetPos, bank_x1, bank_y1
-  KeyWait, F10, d
-  MouseGetPos, bank_x2, bank_y2
-}
-
 bellCurveClick(dimension_x1, dimension_x2, dimension_y1, dimension_y2){ ;Attemps at creating standard deviation clicking
   ;This entire function will be used as a decent antiban. It's not very human
   ;for clicking on an object to be completely and utterly random.
@@ -324,6 +312,21 @@ bellCurveClick(dimension_x1, dimension_x2, dimension_y1, dimension_y2){ ;Attemps
   MouseClick, left, random_x, random_y
 }
 
+askForBankCoords(){ ;Asks uses for an upper left and bottom right coords
+  global bank_x1 ;Global variable to use for where the bank is for different bankstanding activies
+  global bank_x2 ;Global variable to use for where the bank is for different bankstanding activies
+  global bank_y1 ;Global variable to use for where the bank is for different bankstanding activies
+  global bank_y2 ;Global variable to use for where the bank is for different bankstanding activies
+
+  MsgBox, ,Bank Coordinate Finder, Right click on the upper lefthand corner of the bank, then left click bottom righthand
+
+  KeyWait, RButton, d
+  MouseGetPos, bank_x1, bank_y1
+  KeyWait, LButton, d
+  MouseGetPos, bank_x2, bank_y2
+  return
+}
+
 antiban(){
   ;The idea is to have each antiban have a randomized action, and appear randomly
     ;It could be possibile for the first aniban action to log out for 45 minutes, or join a CC
@@ -354,4 +357,6 @@ antiban(){
     ;Bow String -> (u)?
     ;(u) -> Bow string? ;Pretty obvious
 }
+
+
 ; =======================================================================================
