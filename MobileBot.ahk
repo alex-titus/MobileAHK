@@ -68,6 +68,7 @@ HerbCleaning:
   global bank_y1 ;Global variable to use for where the bank is for different bankstanding activies
   global bank_y2 ;Global variable to use for where the bank is for different bankstanding activies
   askForBankCoords()
+  Sleep(1000)
   BreakLoop = 0
   Loop {
     if (BreakLoop = 1){ ;Used to break out of any function when pressing F12
@@ -135,6 +136,22 @@ Log(text){ ;Allows for output of debug to Windows DebugView, filter using "AHK| 
 RandSleep(x,y) { ;Allows for a random sleep between a given X and Y value
 	Random, rand, %x%, %y%
 	Sleep %rand%
+}
+
+distributedRandSleep(x, y){
+  average_sleep := (x+y)/2
+  distribution_sleep := (y-x)/4 ;StDev number
+  Random, random, 1, 100
+  if (random >= 1){
+    Random, random_sleep, average_sleep-distribution_sleep, average_sleep+distribution_sleep
+  } else if (random >= 50){
+    Random, random_sleep, average_sleep-(2*distribution_sleep), average_sleep+(2*distribution_sleep)
+  } else if (random >= 80){
+    Random, random_sleep, average_sleep-(3*distribution_sleep), average_sleep+(3*distribution_sleep)
+  } else {
+    Random, random_sleep, average_sleep-(3*distribution_sleep), average_sleep+(3*distribution_sleep)
+  }
+  Sleep random_sleep
 }
 
 findBluestacks(){
@@ -410,7 +427,7 @@ askForBankCoords(){ ;Asks uses for an upper left and bottom right coords
   return
 }
 
-antiban(){
+antiban(percentage){
   ;The idea is to have each antiban have a randomized action, and appear randomly
     ;It could be possibile for the first aniban action to log out for 45 minutes, or join a CC
   ;General (Any Skill) Antiban ideas:
@@ -439,6 +456,18 @@ antiban(){
     ;Logs -> Knife?
     ;Bow String -> (u)?
     ;(u) -> Bow string? ;Pretty obvious
+
+    Random, antiban_chance, 0, 100
+    if(antiban_chance > percentage){
+      Random, antiban_activity, 0, 100
+      if(antiban_activity >= 0){
+        distributedRandSleep(13000, 25000)
+        log("Sleeping between 13 and 25 seconds")
+      } else if (antiban_activity >= 50){
+        distributedRandSleep(20000, 45000)
+        log("Sleeping between 20 and 45 seconds")
+      }
+    }
 }
 
 
