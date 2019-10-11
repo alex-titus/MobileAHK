@@ -4,7 +4,7 @@ F12::
     Random, randX, 706, 1200
     Random, randY, 330, 765
     MouseClick, Left, randX, randY
-    advancedHumanClick(1246, 1741, 322, 755)
+    humanClick(1251, 1746, 323, 756)
   }
   return
 
@@ -63,7 +63,7 @@ bellCurveClick(dimension_x1, dimension_x2, dimension_y1, dimension_y2){ ;Attemps
   MouseClick, left, random_x, random_y
 }
 
-advancedHumanClick(dimension_x1, dimension_x2, dimension_y1, dimension_y2){ ;Better clicking function
+humanClick(dimension_x1, dimension_x2, dimension_y1, dimension_y2){ ;Better clicking function
   ;Attempting to move the "hard" borders that generate with bellCurveClick
   average_x := (dimension_x1+dimension_x2)/2 ;Midpoint of the x
   average_y := (dimension_y1+dimension_y2)/2 ;Midpoint of the y
@@ -74,49 +74,74 @@ advancedHumanClick(dimension_x1, dimension_x2, dimension_y1, dimension_y2){ ;Bet
   ;MsgBox, average_x: %average_x% average_y: %average_y% distribution_x: %distribution_x% distribution_y: %distribution_y%
 
   Random, random_number, 1, 100
-  if(random_number <= 3){
-    ;Generate clicking on top left
-    Random, random_x, dimension_x1, dimension_x1+distribution_x
-    Random, random_y, dimension_y1, dimension_y1+distribution_y
-    MouseClick, Left, random_x, random_y
-
-  } else if (random_number <= 6){
-    ;Generate clicking on top right
-    Random, random_x, dimension_x2-distribution_x, dimension_x2
-    Random, random_y, dimension_y2-distribution_y, dimension_y2
-    MouseClick, Left, random_x, random_y
-
-   } else if (random_number <= 9){
-    ;Generate clicking on bottom left
-    Random, random_x, dimension_x1, dimension_x1+distribution_x
-    Random, random_y, dimension_y2-distribution_y, dimension_y2
-    MouseClick, Left, random_x, random_y
-
-  } else if (random_number <= 12){
-    ;Generate clicking on bottom right
-    Random, random_x, dimension_x2-distribution_x, dimension_x2
-    Random, random_y, dimension_y2-distribution_y, dimension_y2
-    MouseClick, Left, random_x, random_y
-
-  } else if (Mod(random_number, 2) := 0){
-    ;Generate clicking in the middle somewhere
-    Random, random_x, dimension_x1+(2*distribution_x), dimension_x2-(2*distribution_x)
-    Random, random_y, dimension_y1+(2*distribution_y), dimension_y2-(2*distribution_y)
-    MouseClick, Left, random_x, random_y
-  } else {
+  if (random_number <= 10){
+    if(radius_x >= radius_y){
+      circleClick(average_x, average_y, radius_y/3)
+    } else {
+      circleClick(average_x, average_y, radius_x/3)
+    }
+  } else if(random_number <= 25){
+    if(radius_x >= radius_y){
+      circleClick(average_x, average_y, radius_y/2)
+    } else {
+      circleClick(average_x, average_y, radius_x/2)
+    }
+  } else if(random_number <= 50){
     if(radius_x >= radius_y){
       circleClick(average_x, average_y, radius_y)
     } else {
       circleClick(average_x, average_y, radius_x)
     }
+  } else if(random_number <= 52){
+    ;Generate clicking on top left
+    Random, random_x, dimension_x1, dimension_x1+distribution_x
+    Random, random_y, dimension_y1, dimension_y1+distribution_y
+    MouseClick, Left, random_x, random_y
+
+  } else if (random_number <= 54){
+    ;Generate clicking on top right
+    Random, random_x, dimension_x2-distribution_x, dimension_x2
+    Random, random_y, dimension_y1, dimension_y1+distribution_y
+    MouseClick, Left, random_x, random_y
+
+   } else if (random_number <= 56){
+    ;Generate clicking on bottom left
+    Random, random_x, dimension_x1, dimension_x1+distribution_x
+    Random, random_y, dimension_y2-distribution_y, dimension_y2
+    MouseClick, Left, random_x, random_y
+
+  } else if (random_number <= 58){
+    ;Generate clicking on bottom right
+    Random, random_x, dimension_x2-distribution_x, dimension_x2
+    Random, random_y, dimension_y2-distribution_y, dimension_y2
+    MouseClick, Left, random_x, random_y
+
+
+  } else if(random_number <= 61){
+    ;Generate clicking on middle left
+    Random, random_x, dimension_x1, dimension_x1+distribution_x
+    Random, random_y, dimension_y1+distribution_y, dimension_y1+(3*distribution_y)
+    MouseClick, Left, random_x, random_y
+
+  } else if (random_number <= 64){
+    ;Generate clicking on middle right
+    Random, random_x, dimension_x2-distribution_x, dimension_x2
+    Random, random_y, dimension_y1+distribution_y, dimension_y1+(3*distribution_y)
+    MouseClick, Left, random_x, random_y
+
+  } else {
+    ;Generate clicking in the middle somewhere
+    Random, random_x, average_x+(1.5*distribution_x), average_x-(1.5*distribution_x)
+    Random, random_y, average_y+(1.5*distribution_y), average_y-(1.5*distribution_y)
+    MouseClick, Left, random_x, random_y
   }
 }
 
 circleClick(x_center, y_center, circle_radius){
-  Random, radius, 0, circle_radius
+  Random, radius, 0, (circle_radius*circle_radius)
   Random, angle, 0, 6.28319
-  x_center += Cos(angle)*radius
-  y_center += Sin(angle)*radius
+  x_center += Cos(angle)*(Sqrt(radius))
+  y_center += Sin(angle)*(Sqrt(radius))
 
   MouseClick, Left, x_center, y_center
 }
