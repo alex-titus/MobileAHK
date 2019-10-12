@@ -40,17 +40,16 @@ bank_y2 = 0 ;Global variable to use for where the bank is for different bankstan
 
 ; Script ================================================================================
 findBluestacks() ;Find bluestacks so we know where to search for images
-Gui, Add, Button, x2 y9 w150 h70 gFletching, Fletching
-Gui, Add, Button, x2 y89 w150 h70 gTesting, Testing
-Gui, Add, Button, x2 y169 w150 h70 , Magic
-Gui, Add, Button, x2 y249 w150 h70 gHerbCleaning, Herb Cleaning
-Gui, Add, DropDownList, x162 y9 w120 h21 , DropDownList
-Gui, Add, DropDownList, x162 y89 w120 h21 , DropDownList
-Gui, Add, DropDownList, x162 y169 w120 h21 , DropDownList
-Gui, Add, DropDownList, x162 y249 w120 h21 , DropDownList
-
-Gui, Show, , Mobile OSRS AHK Bot
-return ;End automatic execution
+Gui, Add, Tab, x2 y-1 w440 h360 , Main|Money Making|Skilling
+Gui, Tab, Main
+Gui, Add, Button, x12 y49 w190 h60 gHerbCleaning, Herblore
+Gui, Add, Button, x232 y49 w190 h60 , Coordinate Helper
+Gui, Add, Button, x12 y119 w190 h60 , Start Scripting
+Gui, Add, Button, x232 y119 w190 h60 , Github
+Gui, Add, Edit, vc_edit x12 y199 w410 h130 , Welcome to the Open Source AHK Mobile bot for OSRS, if this is your first time running, click "Github" and follow the instructions!
+; Generated using SmartGUI Creator 4.0
+Gui, Show, x127 y87 h353 w438, Mobile OSRS AHK Bot
+Return
 
 F12::
   log("Breaking loop...")
@@ -67,7 +66,9 @@ HerbCleaning:
   global bank_x2 ;Global variable to use for where the bank is for different bankstanding activies
   global bank_y1 ;Global variable to use for where the bank is for different bankstanding activies
   global bank_y2 ;Global variable to use for where the bank is for different bankstanding activies
+  guiDebug("Asking for bank coordinates")
   askForBankCoords()
+  guiDebug("Bank coordinates set, starting script")
   distributedRandSleep(800, 1500)
   BreakLoop = 0
   Loop {
@@ -129,6 +130,12 @@ ExitSub:
 ; =======================================================================================
 
 ; Functions =============================================================================
+guiDebug(message){
+  GuiControlGet, c_text,,c_edit
+  FormatTime, currentTime, , h:mm:ss tt
+  GuiControl,, c_edit, %currentTime%: %message%`n%c_text%
+}
+
 Log(text){ ;Allows for output of debug to Windows DebugView, filter using "AHK| "
 	OutputDebug % "AHK| " text
 }
@@ -144,13 +151,14 @@ distributedRandSleep(x, y){
   Random, random, 1, 100
   if (random >= 1 and random <= 50){
     Random, random_sleep, average_sleep-distribution_sleep, average_sleep+distribution_sleep
-  } else if (random > 50 and random <= 80){
+  } else if (random > 50 and random <= 60){
     Random, random_sleep, average_sleep-(2*distribution_sleep), average_sleep+(2*distribution_sleep)
-  } else if (random > 80){
+  } else if (random > 60 and random <= 80){
     Random, random_sleep, average_sleep-(3*distribution_sleep), average_sleep+(3*distribution_sleep)
   } else {
     Random, random_sleep, average_sleep-(4*distribution_sleep), average_sleep+(4*distribution_sleep)
   }
+  guiDebug("Sleeping for: " random_sleep/1000 " seconds")
   Sleep %random_sleep%
 }
 

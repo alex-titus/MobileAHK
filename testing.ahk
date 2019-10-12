@@ -1,16 +1,30 @@
-F12::
-  Loop {
-    bellCurveClick(145, 639, 328, 763)
-    Random, randX, 706, 1200
-    Random, randY, 330, 765
-    MouseClick, Left, randX, randY
-    humanClick(1251, 1746, 323, 756)
-  }
-  return
+Gui, Add, Tab, x2 y-1 w440 h360 , Main|Money Making|Skilling
+Gui, Tab, Main
+Gui, Add, Button, x12 y49 w190 h60 , Fletching
+Gui, Add, Button, x232 y49 w190 h60 , Herblore
+Gui, Add, Button, x12 y119 w190 h60 , Testing
+Gui, Add, Button, x232 y119 w190 h60 , Button
+Gui, Add, Edit, vc_edit x12 y199 w410 h130 , Debug window
+; Generated using SmartGUI Creator 4.0
+Gui, Show, x127 y87 h353 w438, Mobile OSRS AHK Bot
+Return
+
+GuiClose:
+ExitApp
 
 ESC::
   ExitApp
   return
+
+F12::
+  guiDebug("Testing")
+  return
+
+guiDebug(message){
+  GuiControlGet, c_text,,c_edit
+  FormatTime, currentTime, , h:mm:ss tt
+  GuiControl,, c_edit, %currentTime%: %message%`n%c_text%
+}
 
 bellCurveClick(dimension_x1, dimension_x2, dimension_y1, dimension_y2){ ;Attemps at creating standard deviation clicking
   ;This entire function will be used as a decent antiban. It's not very human
