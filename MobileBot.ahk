@@ -45,14 +45,14 @@ Gui, Tab, Main
 Gui, Add, Button, x12 y49 w190 h60 gHerbCleaning, Herblore
 Gui, Add, Button, x232 y49 w190 h60 , Coordinate Helper
 Gui, Add, Button, x12 y119 w190 h60 , Start Scripting
-Gui, Add, Button, x232 y119 w190 h60 , Github
+Gui, Add, Button, x232 y119 w190 h60 gGithub, Github
 Gui, Add, Edit, vc_edit x12 y199 w410 h130 , Welcome to the Open Source AHK Mobile bot for OSRS, if this is your first time running, click "Github" and follow the instructions!
 ; Generated using SmartGUI Creator 4.0
 Gui, Show, x127 y87 h353 w438, Mobile OSRS AHK Bot
 Return
 
 F12::
-  log("Breaking loop...")
+  guiDebug("Breaking loop...")
   BreakLoop = 1
   return
 
@@ -89,7 +89,8 @@ HerbCleaning:
     RandSleep(540, 745)
   }
   return
-
+Github:
+  Run, https://github.com/alex-titus/MobileAHK
 Testing:
   return
 
@@ -131,13 +132,10 @@ ExitSub:
 
 ; Functions =============================================================================
 guiDebug(message){
+  c_text = c_text
   GuiControlGet, c_text,,c_edit
   FormatTime, currentTime, , h:mm:ss tt
   GuiControl,, c_edit, %currentTime%: %message%`n%c_text%
-}
-
-Log(text){ ;Allows for output of debug to Windows DebugView, filter using "AHK| "
-	OutputDebug % "AHK| " text
 }
 
 RandSleep(x,y) { ;Allows for a random sleep between a given X and Y value
@@ -168,20 +166,20 @@ findBluestacks(){
   global bluestacks_bottom_right_x = 0 ;ImageSearch will output x coordinate of bottom right corner of bluestacks here
   global bluestacks_bottom_right_y = 0 ;Imagesearch will output y coordinate of bottom right corner of bluestacks here
 
-  log("Searching for bluestacks...")
+  guiDebug("Searching for bluestacks...")
 
   ImageSearch, bluestacks_top_left_x, bluestacks_top_left_y, 0, 0, 1920, 1080, *20 %A_WorkingDir%\images\bluestacks_icon.png
   if (ErrorLevel = 0){
-    log("Top left of bluestacks found at x:" bluestacks_top_left_x " y:" bluestacks_top_left_y) ;Logs coordinates of top left corner of bank
+    guiDebug("Top left of bluestacks found at x:" bluestacks_top_left_x " y:" bluestacks_top_left_y) ;Logs coordinates of top left corner of bank
   } else if (ErrorLevel = 1){
-    log("Unable to find top left corner of the bluestacks...")
+    guiDebug("Unable to find top left corner of the bluestacks...")
   }
 
   ImageSearch, bluestacks_bottom_right_x, bluestacks_bottom_right_y, 0, 0, 1920, 1080, *20 %A_WorkingDir%\images\bluestacks_back.png
   if (ErrorLevel = 0){
-    log("Bottom right of bank found at x:" bluestacks_bottom_right_x " y:" bluestacks_bottom_right_y) ;Logs coordinates of bottom right corner of bank
+    guiDebug("Bottom right of bank found at x:" bluestacks_bottom_right_x " y:" bluestacks_bottom_right_y) ;Logs coordinates of bottom right corner of bank
   } else if (ErrorLevel = 1){
-    log("Unable to find top left corner of the bluestacks...")
+    guiDebug("Unable to find top left corner of the bluestacks...")
   } ;Allows us to find Bluestacks, no real use yet tho
 }
 
@@ -197,7 +195,7 @@ inventoryClick(image, size_x, size_y){
   randY = 0 ;Init value for randY
 	while (totalClicks < 28){
 		ImageSearch, output_x, output_y, move_temp_x, output_y, 1920, 1080, *TransRed *45 %A_WorkingDir%\images\%image%
-		log("found at x:" output_x " y:" output_y) ;Logs current coords of the item
+		;guiDebug("found at x:" output_x " y:" output_y) ;Logs current coords of the item
 		items_in_row := items_in_row + 1
 		Random, randX, 2, size_x ;Random x value increment for humanlike difference
 		Random, randY, 2, size_y ;Random y value increment for humanlike difference
@@ -208,7 +206,7 @@ inventoryClick(image, size_x, size_y){
 			Click
 		}
 		if (ErrorLevel = 1){ ;The item wasn't found on screen
-      log("Wasn't found on scren")
+      guiDebug(image " wasn't found on scren")
 			total_errors++
 		}
 		if (total_errors == 4){ ;If we haven't found the item in 2 times, exit
@@ -234,7 +232,7 @@ click(image, size_x, size_y){
   output_y = 0 ;Imagesearch will output y coordinates here
   ImageSearch, output_x, output_y, 0, 0, 1920, 1080, *TransRed *45 %A_WorkingDir%\images\%image%
   if(ErrorLevel = 0){
-    log("found at x:" output_x " y:" output_y) ;Logs current coords of the item
+    guiDebug("found at x:" output_x " y:" output_y) ;Logs current coords of the item
     Random, randX, 3, size_x - 2 ;Random x value increment for humanlike difference
     Random, randY, 3, size_y - 2 ;Random y value increment for humanlike difference
     tempX := output_x + randX ;Adds our random value to ImageSearch's found coords
@@ -243,7 +241,7 @@ click(image, size_x, size_y){
     Click
     return 0
   } else if (ErrorLevel = 1){
-    log(image " not found")
+    guiDebug(image " not found")
     return 1
   } ;Allows us to click a single object anywhere ;Clicks a specific image on screen
 }
@@ -260,28 +258,28 @@ findInBank(item){
   global bluestacks_bottom_right_x ;ImageSearch will start the search from here
   global bluestacks_bottom_right_y ;ImageSearch will start the search from here
 
-  log("Searching for bank...")
+  guiDebug("Searching for bank...")
 
   ImageSearch, bank_top_left_x, bank_top_left_y, bluestacks_top_left_x, bluestacks_top_left_y, bluestacks_bottom_right_x, bluestacks_bottom_right_y, *50 %A_WorkingDir%\images\top_left_corner_bank.png
   if (ErrorLevel = 0){
-    log("Top left of bank found at x:" bank_top_left_x " y:" bank_top_left_y) ;Logs coordinates of top left corner of bank
+    guiDebug("Top left of bank found at x:" bank_top_left_x " y:" bank_top_left_y) ;Logs coordinates of top left corner of bank
   } else if (ErrorLevel = 1){
-    log("Unable to find top left corner of the bank...")
+    guiDebug("Unable to find top left corner of the bank...")
   }
 
   ImageSearch, bank_bottom_right_x, bank_bottom_right_y, bluestacks_top_left_x, bluestacks_top_left_y, bluestacks_bottom_right_x, bluestacks_bottom_right_y, *50 %A_WorkingDir%\images\bank_equipment.png
   if (ErrorLevel = 0){
-    log("Bottom right of bank found at x:" bank_bottom_right_x " y:" bank_bottom_right_y) ;Logs coordinates of bottom right corner of bank
+    guiDebug("Bottom right of bank found at x:" bank_bottom_right_x " y:" bank_bottom_right_y) ;Logs coordinates of bottom right corner of bank
   } else if (ErrorLevel = 1){
-    log("Unable to find bottom right corner of the bank...")
+    guiDebug("Unable to find bottom right corner of the bank...")
   }
 
   ImageSearch, item_coordinate_x, item_coordinate_y, bank_top_left_x, bank_top_left_y, bank_bottom_right_x, bank_bottom_right_y, *40 %A_WorkingDir%\images\%item%
   if (ErrorLevel = 0){
-    log("Item found at x:" item_coordinate_x " y:" item_coordinate_y) ;Logs coordinates of bottom right corner of bank
+    guiDebug("Item found at x:" item_coordinate_x " y:" item_coordinate_y) ;Logs coordinates of bottom right corner of bank
     return 0
   } else if (ErrorLevel = 1){
-    log("Unable to find item in the bank...")
+    guiDebug("Unable to find item in the bank...")
     return 1
   } ;Used to find if an item is found in the bank, can also set bank coords for future use ;If you're trying to find in bank a certain item (check for 0)
 }
@@ -470,10 +468,10 @@ antiban(percentage){
       Random, antiban_activity, 0, 100
       if(antiban_activity >= 0){
         distributedRandSleep(13000, 25000)
-        log("Sleeping between 13 and 25 seconds")
+        guiDebug("Sleeping between 13 and 25 seconds")
       } else if (antiban_activity >= 50){
         distributedRandSleep(20000, 45000)
-        log("Sleeping between 20 and 45 seconds")
+        guiDebug("Sleeping between 20 and 45 seconds")
       }
     }
 }
