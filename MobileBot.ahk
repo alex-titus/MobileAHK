@@ -68,7 +68,7 @@ HerbCleaning:
   global bank_y1 ;Global variable to use for where the bank is for different bankstanding activies
   global bank_y2 ;Global variable to use for where the bank is for different bankstanding activies
   askForBankCoords()
-  Sleep(1000)
+  distributedRandSleep(800, 1500)
   BreakLoop = 0
   Loop {
     if (BreakLoop = 1){ ;Used to break out of any function when pressing F12
@@ -149,9 +149,9 @@ distributedRandSleep(x, y){
   } else if (random >= 80){
     Random, random_sleep, average_sleep-(3*distribution_sleep), average_sleep+(3*distribution_sleep)
   } else {
-    Random, random_sleep, average_sleep-(3*distribution_sleep), average_sleep+(3*distribution_sleep)
+    Random, random_sleep, average_sleep-(4*distribution_sleep), average_sleep+(4*distribution_sleep)
   }
-  Sleep random_sleep
+  Sleep %random_sleep%
 }
 
 findBluestacks(){
@@ -458,7 +458,7 @@ antiban(percentage){
     ;(u) -> Bow string? ;Pretty obvious
 
     Random, antiban_chance, 0, 100
-    if(antiban_chance > percentage){
+    if(antiban_chance <= percentage){
       Random, antiban_activity, 0, 100
       if(antiban_activity >= 0){
         distributedRandSleep(13000, 25000)
