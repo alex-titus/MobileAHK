@@ -142,11 +142,11 @@ distributedRandSleep(x, y){
   average_sleep := (x+y)/2
   distribution_sleep := (y-x)/4 ;StDev number
   Random, random, 1, 100
-  if (random >= 1){
+  if (random >= 1 and random <= 50){
     Random, random_sleep, average_sleep-distribution_sleep, average_sleep+distribution_sleep
-  } else if (random >= 50){
+  } else if (random > 50 and random <= 80){
     Random, random_sleep, average_sleep-(2*distribution_sleep), average_sleep+(2*distribution_sleep)
-  } else if (random >= 80){
+  } else if (random > 80){
     Random, random_sleep, average_sleep-(3*distribution_sleep), average_sleep+(3*distribution_sleep)
   } else {
     Random, random_sleep, average_sleep-(4*distribution_sleep), average_sleep+(4*distribution_sleep)
