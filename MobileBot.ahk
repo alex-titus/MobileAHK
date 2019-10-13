@@ -44,15 +44,14 @@ Gui, Add, Tab, x2 y-1 w440 h360 , Main|Money Making|Skilling
 Gui, Tab, Main
 Gui, Add, Button, x12 y49 w190 h60 gHerbCleaning, Herblore
 Gui, Add, Button, x232 y49 w190 h60 , Coordinate Helper
-Gui, Add, Button, x12 y119 w190 h60 , Start Scripting
+Gui, Add, Button, x12 y119 w190 h60 , Placeholder
 Gui, Add, Button, x232 y119 w190 h60 gGithub, Github
 Gui, Add, Edit, vc_edit x12 y199 w410 h130 , Welcome to the Open Source AHK Mobile bot for OSRS, if this is your first time running, click "Github" and follow the instructions!
-; Generated using SmartGUI Creator 4.0
-Gui, Show, x127 y87 h353 w438, Mobile OSRS AHK Bot
+Gui, Show, x1429 y87 h353 w438, Mobile OSRS AHK Bot
 Return
 
 F12::
-  guiDebug("Breaking loop...")
+  guiDebug("Stopping running script")
   BreakLoop = 1
   return
 
@@ -66,63 +65,56 @@ HerbCleaning:
   global bank_x2 ;Global variable to use for where the bank is for different bankstanding activies
   global bank_y1 ;Global variable to use for where the bank is for different bankstanding activies
   global bank_y2 ;Global variable to use for where the bank is for different bankstanding activies
+  guiDebug("Starting script: herb cleaning")
   guiDebug("Asking for bank coordinates")
   askForBankCoords()
   guiDebug("Bank coordinates set, starting script")
-  distributedRandSleep(800, 1500)
+  distributedRandSleep(1500, 3000)
   BreakLoop = 0
+  loop_errors = 0
   Loop {
     if (BreakLoop = 1){ ;Used to break out of any function when pressing F12
       break
     }
-    inventoryClick("grimy_marrentil.png", 27, 21)
-    RandSleep(243, 482)
-    Random, random_bank_x, 576, 850
-    Random, random_bank_y, 365, 645
-    MouseClick, Left, random_bank_x, random_bank_y
-    RandSleep(600, 993)
-    click("bank_inventory.png", 55, 56)
-    RandSleep(353, 454)
-    click("grimy_marrentil.png", 27, 21)
-    RandSleep(123, 193)
-    click("bank_close.png", 34, 34)
-    RandSleep(540, 745)
+    if (loop_errors = 5){ ;We've been messing up, exit script to not look like a bot
+      break
+      guiDebug("Failed to bank inventory 5 times, exiting script")
+    }
+    guiDebug("Rolling for antiban")
+    antiban(5)
+    ;Assume our bank is open now, deposit anything in inventory
+    if (click("bank_inventory.png", 50, 50) = 0){ ;Successfully banked everything in our inventory
+      loop_errors = 0 ;reset our amount of errors
+      distributedRandSleep(600, 900) ;Sleep between 1 to 1.5 ticks
+      if (click("grimy_marrentil.png", 27, 21) = 0){ ;Withdraw our herb from bank
+        distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
+        click("bank_close.png", 34, 34) ;Close the bank
+        distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
+        guiDebug("Cleaning herbs") ;Outputs Cleaning herbs to the gui
+        inventoryClick("grimy_marrentil.png", 27, 21) ;Clean our inventory of herbs
+        bellCurveClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank ;Open our bank
+        distributedRandSleep(900, 1200) ;Sleep between 1 to 1.5 ticks
+      } else { ;Our last withdraw didn't work, so try again
+        click("grimy_marrentil.png", 27, 21) ;Withdraw our herb from bank
+        distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
+        click("bank_close.png", 34, 34) ;Close the bank
+        distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
+        guiDebug("Cleaning herbs") ;Outputs Cleaning herbs to the gui
+        inventoryClick("grimy_marrentil.png", 27, 21) ;Clean our inventory of herbs
+        bellCurveClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank
+        distributedRandSleep(900, 1200) ;Sleep between 1 to 1.5 ticks
+      }
+    } else {
+      loop_errors++ ;Increment errors, so we can break if something is wrong
+      ;We did not open our bank, so must open it
+      bellCurveClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank
+      distributedRandSleep(900, 1200) ;Sleep between 1 to 1.5 ticks
+    }
   }
   return
+
 Github:
   Run, https://github.com/alex-titus/MobileAHK
-Testing:
-  return
-
-Fletching:
-  Loop {
-    if (BreakLoop = 1){ ;Used to break out of any function when pressing F12
-      break
-    }
-    bank_x = 0
-    bank_y = 0
-    click("knife.png", 20, 20)
-    RandSleep(243, 482)
-    click("maple_logs.png", 32, 21)
-    RandSleep(842, 1110)
-    if (click("maple_longbow_u.png", 80, 96) == 0){
-      RandSleep(47000, 57000)
-    }
-    Random, bank_x, 530, 380
-    Random, bank_y, 830, 660
-    MouseClick, Left, bank_x, bank_y
-    MouseClick, Left, bank_x, bank_y
-    RandSleep(900, 1113)
-    if (click("bank_inventory.png", 55, 56) = 1){
-      RandSleep(113, 254)
-      click("maple_logs.png", 32, 21)
-      RandSleep(123, 193)
-      click("bank_close.png", 34, 34)
-      RandSleep(340, 745)
-    }
-  }
-  return
-
 
 GuiEscape:
 GuiClose:
@@ -156,7 +148,7 @@ distributedRandSleep(x, y){
   } else {
     Random, random_sleep, average_sleep-(4*distribution_sleep), average_sleep+(4*distribution_sleep)
   }
-  guiDebug("Sleeping for: " random_sleep/1000 " seconds")
+  ;guiDebug("Sleeping for: " random_sleep/1000 " seconds")
   Sleep %random_sleep%
 }
 
@@ -206,7 +198,7 @@ inventoryClick(image, size_x, size_y){
 			Click
 		}
 		if (ErrorLevel = 1){ ;The item wasn't found on screen
-      guiDebug(image " wasn't found on scren")
+      ;guiDebug(image " wasn't found on scren")
 			total_errors++
 		}
 		if (total_errors == 4){ ;If we haven't found the item in 2 times, exit
@@ -232,7 +224,7 @@ click(image, size_x, size_y){
   output_y = 0 ;Imagesearch will output y coordinates here
   ImageSearch, output_x, output_y, 0, 0, 1920, 1080, *TransRed *45 %A_WorkingDir%\images\%image%
   if(ErrorLevel = 0){
-    guiDebug("found at x:" output_x " y:" output_y) ;Logs current coords of the item
+    ;guiDebug("found at x:" output_x " y:" output_y) ;Logs current coords of the item
     Random, randX, 3, size_x - 2 ;Random x value increment for humanlike difference
     Random, randY, 3, size_y - 2 ;Random y value increment for humanlike difference
     tempX := output_x + randX ;Adds our random value to ImageSearch's found coords
@@ -241,7 +233,7 @@ click(image, size_x, size_y){
     Click
     return 0
   } else if (ErrorLevel = 1){
-    guiDebug(image " not found")
+    ;guiDebug(image " not found")
     return 1
   } ;Allows us to click a single object anywhere ;Clicks a specific image on screen
 }
@@ -333,6 +325,7 @@ bellCurveClick(dimension_x1, dimension_x2, dimension_y1, dimension_y2){ ;Attemps
   }
 
   MouseClick, left, random_x, random_y
+  return 0
 }
 
 humanClick(dimension_x1, dimension_x2, dimension_y1, dimension_y2){ ;Better clicking function
@@ -407,6 +400,7 @@ humanClick(dimension_x1, dimension_x2, dimension_y1, dimension_y2){ ;Better clic
     Random, random_y, average_y+(1.5*distribution_y), average_y-(1.5*distribution_y)
     MouseClick, Left, random_x, random_y
   }
+  return
 }
 
 circleClick(x_center, y_center, circle_radius){
@@ -462,16 +456,15 @@ antiban(percentage){
     ;Logs -> Knife?
     ;Bow String -> (u)?
     ;(u) -> Bow string? ;Pretty obvious
-
     Random, antiban_chance, 0, 100
     if(antiban_chance <= percentage){
       Random, antiban_activity, 0, 100
       if(antiban_activity >= 0){
+        guiDebug("Antiban sleeping between 13 and 25 seconds")
         distributedRandSleep(13000, 25000)
-        guiDebug("Sleeping between 13 and 25 seconds")
       } else if (antiban_activity >= 50){
+        guiDebug("Antiban sleeping between 20 and 45 seconds")
         distributedRandSleep(20000, 45000)
-        guiDebug("Sleeping between 20 and 45 seconds")
       }
     }
 }
