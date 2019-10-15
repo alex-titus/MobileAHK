@@ -11,13 +11,3 @@ Return
 
 ESC::
   ExitApp
-
-F12::
-  guiDebug("Testing")
-  return
-
-guiDebug(message){
-  GuiControlGet, c_text,,c_edit
-  FormatTime, currentTime, , h:mm:ss tt
-  GuiControl,, c_edit, %currentTime%: %message%`n%c_text%
-}
