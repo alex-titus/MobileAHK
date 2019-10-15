@@ -44,7 +44,7 @@ Gui, Add, Tab, x2 y-1 w440 h360 , Main|Money Making|Skilling
 Gui, Tab, Main
 Gui, Add, Button, x12 y49 w190 h60 gHerbCleaning, Herblore
 Gui, Add, Button, x232 y49 w190 h60 , Coordinate Helper
-Gui, Add, Button, x12 y119 w190 h60 , Placeholder
+Gui, Add, Button, x12 y119 w190 h60 gResizeBluestacks, Resize Bluestacks
 Gui, Add, Button, x232 y119 w190 h60 gGithub, Github
 Gui, Add, Edit, vc_edit x12 y199 w410 h130 , Welcome to the Open Source AHK Mobile bot for OSRS, if this is your first time running, click "Github" and follow the instructions!
 Gui, Show, x1429 y87 h353 w438, Mobile OSRS AHK Bot
@@ -115,6 +115,11 @@ HerbCleaning:
 
 Github:
   Run, https://github.com/alex-titus/MobileAHK
+  return
+
+ResizeBluestacks:
+  WinMove, BlueStacks, , , , 1280, 720
+  return
 
 GuiEscape:
 GuiClose:
@@ -186,7 +191,7 @@ inventoryClick(image, size_x, size_y){
   randX = 0 ;Init value for randX
   randY = 0 ;Init value for randY
 	while (totalClicks < 28){
-		ImageSearch, output_x, output_y, move_temp_x, output_y, 1920, 1080, *TransRed *45 %A_WorkingDir%\images\%image%
+		ImageSearch, output_x, output_y, move_temp_x, output_y, 1920, 1080, *51 %A_WorkingDir%\images\%image%
 		;guiDebug("found at x:" output_x " y:" output_y) ;Logs current coords of the item
 		items_in_row := items_in_row + 1
 		Random, randX, 2, size_x ;Random x value increment for humanlike difference
