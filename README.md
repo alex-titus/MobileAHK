@@ -9,3 +9,11 @@ If you're going to be using this, just remember:
 * Join the discord, https://discord.gg/uc99pZG
 
 # Setting Up Everything
+This is fairly easy to setup for now, I'm trying to make this as much "download and play" as possible.
+
+* Clone / Download the repository to wherever you want,
+* Click on "Resize Bluestacks", this should make it 1240x720
+
+![Resize Button on GUI](https://i.imgur.com/JjTlAhF.png)
+* Click on selected script, and any options that appear
+* Sit back and enjoy botting, you can see current progress on the GUI.
