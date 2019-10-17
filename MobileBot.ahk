@@ -31,86 +31,92 @@ bluestacks_top_left_x = 0 ;ImageSearch will output x coordinats of top left corn
 bluestacks_top_left_y = 0 ;Imagesearch will output y coordinate of top left corner of bluestacks here
 bluestacks_bottom_right_x = %A_ScreenWidth% ;ImageSearch will output x coordinate of bottom right corner of bluestacks here
 bluestacks_bottom_right_y = %A_ScreenHeight% ;Imagesearch will output y coordinate of bottom right corner of bluestacks here
-BreakLoop = 0 ;Used for breaking out of looping functions without exiting program
+selected_script = "none" ;This is where the script that will be run can be saved
+break_loop = 0 ;Used for breaking out of looping functions without exiting program
 bank_x1 = 0 ;Global variable to use for where the bank is for different bankstanding activies
 bank_x2 = 0 ;Global variable to use for where the bank is for different bankstanding activies
 bank_y1 = 0 ;Global variable to use for where the bank is for different bankstanding activies
 bank_y2 = 0 ;Global variable to use for where the bank is for different bankstanding activies
+
+herb_clean_choice = "" ;Global variable for cleaning herbs
+weapon_fletch_choice = "" ;Gloabl variable for fletching weapons
+arrow_fletch_choice = "" ;Gloabl variable for fletching arrows
+dart_fletch_choice = "" ;Gloabl variable for fletching darts
 ; =======================================================================================
 
 ; Script ================================================================================
-findBluestacks() ;Find bluestacks so we know where to search for images
-Gui, Add, Tab, x2 y-1 w440 h360 , Main|Money Making|Skilling
+findBluestacks() ;Find bluestacks so we know where to search for images later on
+Gui, Add, Tab, x2 y-1 w440 h500 , Main|Money Making|Skilling
 Gui, Tab, Main
-Gui, Add, Button, x12 y49 w190 h60 gHerbCleaning, Herblore
+Gui, Add, Button, x12 y49 w190 h60 , Set Coordinates
 Gui, Add, Button, x232 y49 w190 h60 , Coordinate Helper
 Gui, Add, Button, x12 y119 w190 h60 gResizeBluestacks, Resize Bluestacks
 Gui, Add, Button, x232 y119 w190 h60 gGithub, Github
-Gui, Add, Edit, vc_edit x12 y199 w410 h130 , Welcome to the Open Source AHK Mobile bot for OSRS, if this is your first time running, click "Github" and follow the instructions!
-Gui, Show, x1429 y87 h353 w438, Mobile OSRS AHK Bot
-Return
+Gui, Add, Edit, x12 y349 w410 h130 vc_edit, Welcome to the Open Source AHK Mobile bot for OSRS, if this is your first time running, click "Github" and follow the instructions!
+Gui, Add, Button, x12 y189 w190 h60 gStartScripting, Start Scripting
+Gui, Add, Button, x232 y189 w190 h60 , Github
+Gui, Tab, Money Making
+Gui, Add, Button, x12 y49 w190 h60 gHerbCleaning, Herb Cleaning
+Gui, Add, Button, x12 y119 w190 h60 , Fletching
+Gui, Add, Button, x12 y189 w190 h60 , Crafting
+Gui, Add, Button, x12 y259 w190 h60 , Placeholder
+Gui, Add, Button, x12 y329 w190 h60 , Placeholder
+Gui, Add, Button, x12 y399 w190 h60 , Placeholder
+Gui, Add, DropDownList, x222 y49 w210 vherb_clean_choice, guam||marrentill|tarromin|harralander|ranarr|toadflax|irit|avantoe|kwuarm|snapdragon|cadantine|lantadym|dwarf|tortsol
+Gui, Add, DropDownList, x292 y109 w140 vweapon_fletch_choice, Shortbow (u)||Shortbow|Longbow (u)|Longbow|Oak Shortbow(u)|Oak Shortbow|Oak Longbow(u)|Oak Longbow|Willow Shortbow(u)|Willow Shortbow|Willow Longbow(u)|Willow Longbow|Maple Shortbow(u)|Maple Shortbow|Maple Longbow(u)|Maple Longbow|Yew Shortbow(u)|Yew Shortbow|Yew Longbow(u)|Yew Longbow|Magic Shortbow(u)|Magic Shortbow|Magic Longbow(u)|Magic Longbow
+Gui, Add, DropDownList, x292 y139 w140 varrow_fletch_choice, Bronze||Iron|Steel|Mithril|Broad|Adamant|Rune|Amethyst|Dragon
+Gui, Add, DropDownList, x292 y169 w140 vdart_fletch_choice, Bronze||Iron|Steel|Mithril|Adamant|Rune|Dragon
+Gui, Add, Radio, x222 y109 w65 h20 , Weapons
+Gui, Add, Radio, x222 y139 w60 h20 , Arrows
+Gui, Add, Radio, x222 y169 w60 h20 , Darts
+; Generated using SmartGUI Creator 4.0
+Gui, Show, x1429 y87 h496 w440, New GUI Window
+return
 
 F12::
   guiDebug("Stopping running script")
-  BreakLoop = 1
+  break_loop = 1
   return
 
 ESC::
   ExitApp
+
+F11::
+  Send, ^s ; To save a changed script
+  Sleep, 300 ; give it time to save the script
+  Reload
+  Return
 ; =======================================================================================
 
-; Labels ================================================================================
-HerbCleaning:
-  global bank_x1 ;Global variable to use for where the bank is for different bankstanding activies
-  global bank_x2 ;Global variable to use for where the bank is for different bankstanding activies
-  global bank_y1 ;Global variable to use for where the bank is for different bankstanding activies
-  global bank_y2 ;Global variable to use for where the bank is for different bankstanding activies
-  guiDebug("Starting script: herb cleaning")
-  guiDebug("Asking for bank coordinates")
-  askForBankCoords()
-  guiDebug("Bank coordinates set, starting script")
-  distributedRandSleep(1500, 3000)
-  BreakLoop = 0
-  loop_errors = 0
-  Loop {
-    if (BreakLoop = 1){ ;Used to break out of any function when pressing F12
-      break
-    }
-    if (loop_errors = 5){ ;We've been messing up, exit script to not look like a bot
-      break
-      guiDebug("Failed to bank inventory 5 times, exiting script")
-    }
-    guiDebug("Rolling for antiban")
-    antiban(5)
-    ;Assume our bank is open now, deposit anything in inventory
-    if (click("bank_inventory.png", 50, 50) = 0){ ;Successfully banked everything in our inventory
-      loop_errors = 0 ;reset our amount of errors
-      distributedRandSleep(600, 900) ;Sleep between 1 to 1.5 ticks
-      if (click("grimy_marrentil.png", 27, 21) = 0){ ;Withdraw our herb from bank
-        distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
-        click("bank_close.png", 34, 34) ;Close the bank
-        distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
-        guiDebug("Cleaning herbs") ;Outputs Cleaning herbs to the gui
-        inventoryClick("grimy_marrentil.png", 27, 21) ;Clean our inventory of herbs
-        bellCurveClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank ;Open our bank
-        distributedRandSleep(900, 1200) ;Sleep between 1 to 1.5 ticks
-      } else { ;Our last withdraw didn't work, so try again
-        click("grimy_marrentil.png", 27, 21) ;Withdraw our herb from bank
-        distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
-        click("bank_close.png", 34, 34) ;Close the bank
-        distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
-        guiDebug("Cleaning herbs") ;Outputs Cleaning herbs to the gui
-        inventoryClick("grimy_marrentil.png", 27, 21) ;Clean our inventory of herbs
-        bellCurveClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank
-        distributedRandSleep(900, 1200) ;Sleep between 1 to 1.5 ticks
-      }
-    } else {
-      loop_errors++ ;Increment errors, so we can break if something is wrong
-      ;We did not open our bank, so must open it
-      bellCurveClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank
-      distributedRandSleep(900, 1200) ;Sleep between 1 to 1.5 ticks
-    }
+; Labels For Selecting a Script =========================================================
+StartScripting:
+  if selected_script = "none"
+  {
+    guiDebug("Please select a script and try again")
+    return
+  } else if selected_script = "herb_cleaning"
+  {
+    herbCleaning()
+    return
   }
+  else if selected_script = "weapon_fletching"
+  {
+    return
+  }
+  else if selected_script = "arrow_fletching"
+  {
+    return
+  }
+  else if selected_script = "dart_fletching"
+  {
+    return
+  }
+  return
+
+HerbCleaning:
+  Gui, Submit, NoHide
+  selected_script = "herb_cleaning"
+  guiDebug("Currented selected script: grimy " herb_clean_choice " cleaning")
   return
 
 Github:
@@ -122,12 +128,14 @@ ResizeBluestacks:
   return
 
 GuiEscape:
+
 GuiClose:
+
 ExitSub:
 	ExitApp ;Exits the script completely
 ; =======================================================================================
 
-; Functions =============================================================================
+; General Use Functions =================================================================
 guiDebug(message){
   c_text = c_text
   GuiControlGet, c_text,,c_edit
@@ -464,15 +472,151 @@ antiban(percentage){
     Random, antiban_chance, 0, 100
     if(antiban_chance <= percentage){
       Random, antiban_activity, 0, 100
-      if(antiban_activity >= 0){
+      if(antiban_activity >= 0 and antiban_activity <= 75){
         guiDebug("Antiban sleeping between 13 and 25 seconds")
         distributedRandSleep(13000, 25000)
-      } else if (antiban_activity >= 50){
-        guiDebug("Antiban sleeping between 20 and 45 seconds")
-        distributedRandSleep(20000, 45000)
+      } else if (antiban_activity > 75){
+        guiDebug("Antiban sleeping between 30 and 60 seconds")
+        distributedRandSleep(30000, 60000)
       }
     }
 }
 
 
 ; =======================================================================================
+; Specific Skill Functions ==============================================================
+herbCleaning(){
+  global bank_x1 ;Global variable to use for where the bank is for different bankstanding activies
+  global bank_x2 ;Global variable to use for where the bank is for different bankstanding activies
+  global bank_y1 ;Global variable to use for where the bank is for different bankstanding activies
+  global bank_y2 ;Global variable to use for where the bank is for different bankstanding activies
+  global herb_clean_choice
+  guiDebug("Starting script: grimy " herb_clean_choice " cleaning")
+  guiDebug("Asking for bank coordinates")
+  askForBankCoords()
+  guiDebug("Bank coordinates set, starting script")
+  distributedRandSleep(1500, 3000)
+  global break_loop = 0
+  loop_errors = 0
+  Loop {
+    if (break_loop = 1){ ;Used to break out of any function when pressing F12
+      break
+    }
+    if (loop_errors = 5){ ;We've been messing up, exit script to not look like a bot
+      break
+      guiDebug("Failed to bank inventory 5 times, exiting script")
+    }
+    guiDebug("Rolling for antiban")
+    antiban(5)
+    ;Assume our bank is open now, deposit anything in inventory
+    if (click("bank_inventory.png", 50, 50) = 0){ ;Successfully banked everything in our inventory
+      loop_errors = 0 ;reset our amount of errors
+      distributedRandSleep(600, 900) ;Sleep between 1 to 1.5 ticks
+      if (click("grimy_" herb_clean_choice ".png", 27, 21) = 0){ ;Withdraw our herb from bank
+        distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
+        click("bank_close.png", 34, 34) ;Close the bank
+        distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
+        guiDebug("Cleaning herbs") ;Outputs Cleaning herbs to the gui
+        inventoryClick("grimy_" herb_clean_choice ".png", 27, 21) ;Clean our inventory of herbs
+        bellCurveClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank ;Open our bank
+        distributedRandSleep(900, 1200) ;Sleep between 1 to 1.5 ticks
+      } else { ;Our last withdraw didn't work, so try again
+        click("grimy_" herb_clean_choice ".png", 27, 21) ;Withdraw our herb from bank
+        distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
+        click("bank_close.png", 34, 34) ;Close the bank
+        distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
+        guiDebug("Cleaning herbs") ;Outputs Cleaning herbs to the gui
+        inventoryClick("grimy_" herb_clean_choice ".png", 27, 21) ;Clean our inventory of herbs
+        bellCurveClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank
+        distributedRandSleep(900, 1200) ;Sleep between 1 to 1.5 ticks
+      }
+    } else {
+      loop_errors++ ;Increment errors, so we can break if something is wrong
+      ;We did not open our bank, so must open it
+      bellCurveClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank
+      distributedRandSleep(900, 1200) ;Sleep between 1 to 1.5 ticks
+    }
+  }
+  return
+}
+
+weaponFletching(){
+  global bank_x1 ;Global variable to use for where the bank is for different bankstanding activies
+  global bank_x2 ;Global variable to use for where the bank is for different bankstanding activies
+  global bank_y1 ;Global variable to use for where the bank is for different bankstanding activies
+  global bank_y2 ;Global variable to use for where the bank is for different bankstanding activies
+  global weapon_fletch_choice
+  guiDebug("Starting script: fletching " weapon_fletch_choice)
+  guiDebug("Asking for bank coordinates")
+  askForBankCoords()
+  guiDebug("Bank coordinates set, starting script")
+  distributedRandSleep(1500, 3000)
+  global break_loop = 0
+  loop_errors = 0
+  Loop {
+    if (break_loop = 1){ ;Used to break out of any function when pressing F12
+      break
+    }
+    if (loop_errors = 5){ ;We've been messing up, exit script to not look like a bot
+      break
+      guiDebug("Failed to bank inventory 5 times, exiting script")
+    }
+    guiDebug("Rolling for antiban")
+    antiban(5)
+  }
+  return
+}
+
+arrowFletching(){
+  global bank_x1 ;Global variable to use for where the bank is for different bankstanding activies
+  global bank_x2 ;Global variable to use for where the bank is for different bankstanding activies
+  global bank_y1 ;Global variable to use for where the bank is for different bankstanding activies
+  global bank_y2 ;Global variable to use for where the bank is for different bankstanding activies
+  global arrow_fletch_choice
+  guiDebug("Starting script: fletching " arrow_fletch_choice)
+  guiDebug("Asking for bank coordinates")
+  askForBankCoords()
+  guiDebug("Bank coordinates set, starting script")
+  distributedRandSleep(1500, 3000)
+  global break_loop = 0
+  loop_errors = 0
+  Loop {
+    if (break_loop = 1){ ;Used to break out of any function when pressing F12
+      break
+    }
+    if (loop_errors = 5){ ;We've been messing up, exit script to not look like a bot
+      break
+      guiDebug("Failed to bank inventory 5 times, exiting script")
+    }
+    guiDebug("Rolling for antiban")
+    antiban(5)
+  }
+  return
+}
+
+dartFletching(){
+  global bank_x1 ;Global variable to use for where the bank is for different bankstanding activies
+  global bank_x2 ;Global variable to use for where the bank is for different bankstanding activies
+  global bank_y1 ;Global variable to use for where the bank is for different bankstanding activies
+  global bank_y2 ;Global variable to use for where the bank is for different bankstanding activies
+  global dart_fletch_choice
+  guiDebug("Starting script: fletching " dart_fletch_choice)
+  guiDebug("Asking for bank coordinates")
+  askForBankCoords()
+  guiDebug("Bank coordinates set, starting script")
+  distributedRandSleep(1500, 3000)
+  global break_loop = 0
+  loop_errors = 0
+  Loop {
+    if (break_loop = 1){ ;Used to break out of any function when pressing F12
+      break
+    }
+    if (loop_errors = 5){ ;We've been messing up, exit script to not look like a bot
+      break
+      guiDebug("Failed to bank inventory 5 times, exiting script")
+    }
+    guiDebug("Rolling for antiban")
+    antiban(5)
+  }
+  return
+}
