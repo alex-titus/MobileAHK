@@ -57,16 +57,16 @@ Gui, Add, Button, x12 y189 w190 h60 gStartScripting, Start Scripting
 Gui, Add, Button, x232 y189 w190 h60 , Github
 Gui, Tab, Money Making
 Gui, Add, Button, x12 y49 w190 h60 gHerbCleaning, Herb Cleaning
-Gui, Add, Button, x12 y119 w190 h60 , Fletching
+Gui, Add, Button, x12 y119 w190 h60 gFletching, Fletching
 Gui, Add, Button, x12 y189 w190 h60 , Crafting
 Gui, Add, Button, x12 y259 w190 h60 , Placeholder
 Gui, Add, Button, x12 y329 w190 h60 , Placeholder
 Gui, Add, Button, x12 y399 w190 h60 , Placeholder
 Gui, Add, DropDownList, x222 y49 w210 vherb_clean_choice, guam||marrentill|tarromin|harralander|ranarr|toadflax|irit|avantoe|kwuarm|snapdragon|cadantine|lantadym|dwarf|tortsol
-Gui, Add, DropDownList, x292 y109 w140 vweapon_fletch_choice, Shortbow (u)||Shortbow|Longbow (u)|Longbow|Oak Shortbow(u)|Oak Shortbow|Oak Longbow(u)|Oak Longbow|Willow Shortbow(u)|Willow Shortbow|Willow Longbow(u)|Willow Longbow|Maple Shortbow(u)|Maple Shortbow|Maple Longbow(u)|Maple Longbow|Yew Shortbow(u)|Yew Shortbow|Yew Longbow(u)|Yew Longbow|Magic Shortbow(u)|Magic Shortbow|Magic Longbow(u)|Magic Longbow
+Gui, Add, DropDownList, x292 y109 w140 vweapon_fletch_choice, Shortbow_(u)||Shortbow|Longbow_(u)|Longbow|Oak_Shortbow(u)|Oak_Shortbow|Oak_Longbow(u)|Oak_Longbow|Willow_Shortbow(u)|Willow_Shortbow|Willow_Longbow(u)|Willow_Longbow|Maple_Shortbow(u)|Maple_Shortbow|Maple_Longbow(u)|Maple_Longbow|Yew_Shortbow(u)|Yew_Shortbow|Yew_Longbow(u)|Yew_Longbow|Magic_Shortbow(u)|Magic_Shortbow|Magic_Longbow(u)|Magic_Longbow
 Gui, Add, DropDownList, x292 y139 w140 varrow_fletch_choice, Bronze||Iron|Steel|Mithril|Broad|Adamant|Rune|Amethyst|Dragon
 Gui, Add, DropDownList, x292 y169 w140 vdart_fletch_choice, Bronze||Iron|Steel|Mithril|Adamant|Rune|Dragon
-Gui, Add, Radio, x222 y109 w65 h20 , Weapons
+Gui, Add, Radio, x222 y109 w65 h20 vfletching_radio_group, Weapons
 Gui, Add, Radio, x222 y139 w60 h20 , Arrows
 Gui, Add, Radio, x222 y169 w60 h20 , Darts
 ; Generated using SmartGUI Creator 4.0
@@ -101,14 +101,17 @@ StartScripting:
   }
   else if selected_script = "weapon_fletching"
   {
+    weaponFletching()
     return
   }
   else if selected_script = "arrow_fletching"
   {
+    arrowFletching()
     return
   }
   else if selected_script = "dart_fletching"
   {
+    dartFletching()
     return
   }
   return
@@ -117,6 +120,21 @@ HerbCleaning:
   Gui, Submit, NoHide
   selected_script = "herb_cleaning"
   guiDebug("Currented selected script: grimy " herb_clean_choice " cleaning")
+  return
+
+
+Fletching:
+  Gui, Submit, NoHide
+  if (fletching_radio_group = 1){
+    selected_script = "weapon_fletching"
+    guiDebug("Currented selected script: Fletching " weapon_fletch_choice)
+  } else if (fletching_radio_group = 2){
+    selected_script = "arrow_fletching"
+    guiDebug("Currented selected script: Fletching " arrow_fletch_choice)
+  } else if (fletching_radio_group = 3){
+    selected_script = "dart_fletching"
+    guiDebug("Currented selected script: Fletching " dart_fletch_choice)
+  }
   return
 
 Github:
@@ -188,7 +206,7 @@ findBluestacks(){
   } ;Allows us to find Bluestacks, no real use yet tho
 }
 
-inventoryClick(image, size_x, size_y){
+inventoryClick(image, size_x, size_y, trans_var){
 	totalClicks = 0 ;Total amount of times the item has been found
 	items_in_row = 0 ;Counting the amount of times in a row the items has been found
 	total_errors = 0 ;Calculating total errors, allows for early terminatino
@@ -199,7 +217,7 @@ inventoryClick(image, size_x, size_y){
   randX = 0 ;Init value for randX
   randY = 0 ;Init value for randY
 	while (totalClicks < 28){
-		ImageSearch, output_x, output_y, move_temp_x, output_y, 1920, 1080, *51 %A_WorkingDir%\images\%image%
+		ImageSearch, output_x, output_y, move_temp_x, output_y, 1920, 1080, *TransBlack *%trans_var% %A_WorkingDir%\images\%image%
 		;guiDebug("found at x:" output_x " y:" output_y) ;Logs current coords of the item
 		items_in_row := items_in_row + 1
 		Random, randX, 2, size_x ;Random x value increment for humanlike difference
@@ -232,10 +250,10 @@ inventoryClick(image, size_x, size_y){
 	} ;Allows us to click every item in inventory ;Clicks all specific items in inventory
 }
 
-click(image, size_x, size_y){
+click(image, size_x, size_y, trans_var){
   output_x = 0 ;ImageSearch will output x coordinates here
   output_y = 0 ;Imagesearch will output y coordinates here
-  ImageSearch, output_x, output_y, 0, 0, 1920, 1080, *TransRed *45 %A_WorkingDir%\images\%image%
+  ImageSearch, output_x, output_y, 0, 0, 1920, 1080, *TransBlack *%trans_var% %A_WorkingDir%\images\%image%
   if(ErrorLevel = 0){
     ;guiDebug("found at x:" output_x " y:" output_y) ;Logs current coords of the item
     Random, randX, 3, size_x - 2 ;Random x value increment for humanlike difference
@@ -497,7 +515,7 @@ herbCleaning(){
   guiDebug("Bank coordinates set, starting script")
   distributedRandSleep(1500, 3000)
   global break_loop = 0
-  loop_errors = 0
+  global loop_errors = 0
   Loop {
     if (break_loop = 1){ ;Used to break out of any function when pressing F12
       break
@@ -509,24 +527,24 @@ herbCleaning(){
     guiDebug("Rolling for antiban")
     antiban(5)
     ;Assume our bank is open now, deposit anything in inventory
-    if (click("bank_inventory.png", 50, 50) = 0){ ;Successfully banked everything in our inventory
+    if (click("bank_inventory.png", 50, 50, 55) = 0){ ;Successfully banked everything in our inventory
       loop_errors = 0 ;reset our amount of errors
       distributedRandSleep(600, 900) ;Sleep between 1 to 1.5 ticks
-      if (click("grimy_" herb_clean_choice ".png", 27, 21) = 0){ ;Withdraw our herb from bank
+      if (click("grimy_" herb_clean_choice ".png", 27, 21, 55) = 0){ ;Withdraw our herb from bank
         distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
-        click("bank_close.png", 34, 34) ;Close the bank
+        click("bank_close.png", 34, 34, 55) ;Close the bank
         distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
         guiDebug("Cleaning herbs") ;Outputs Cleaning herbs to the gui
-        inventoryClick("grimy_" herb_clean_choice ".png", 27, 21) ;Clean our inventory of herbs
+        inventoryClick("grimy_" herb_clean_choice ".png", 27, 21, 55) ;Clean our inventory of herbs
         bellCurveClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank ;Open our bank
         distributedRandSleep(900, 1200) ;Sleep between 1 to 1.5 ticks
       } else { ;Our last withdraw didn't work, so try again
-        click("grimy_" herb_clean_choice ".png", 27, 21) ;Withdraw our herb from bank
+        click("grimy_" herb_clean_choice ".png", 27, 21, 55) ;Withdraw our herb from bank
         distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
-        click("bank_close.png", 34, 34) ;Close the bank
+        click("bank_close.png", 34, 34, 55) ;Close the bank
         distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
         guiDebug("Cleaning herbs") ;Outputs Cleaning herbs to the gui
-        inventoryClick("grimy_" herb_clean_choice ".png", 27, 21) ;Clean our inventory of herbs
+        inventoryClick("grimy_" herb_clean_choice ".png", 27, 21, 55) ;Clean our inventory of herbs
         bellCurveClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank
         distributedRandSleep(900, 1200) ;Sleep between 1 to 1.5 ticks
       }
@@ -546,23 +564,77 @@ weaponFletching(){
   global bank_y1 ;Global variable to use for where the bank is for different bankstanding activies
   global bank_y2 ;Global variable to use for where the bank is for different bankstanding activies
   global weapon_fletch_choice
+  global stringing = 0
+  global logs = ""
+  global break_loop = 0
+  global loop_errors = 0
+  if (weapon_fletch_choice = "Shortbow_(u)" or weapon_fletch_choice = "Longbow_(u)"){
+    stringing := 0
+    logs = "logs.png"
+  } else if (weapon_fletch_choice = "Shortbow" or weapon_fletch_choice = "Longbow"){
+    stringing := 1
+    logs = "logs.png"
+  } else if (weapon_fletch_choice = "Oak_Shortbow(u)" or weapon_fletch_choice = "Oak_Longbow(u)"){
+    stringing := 0
+    logs = "oak_logs.png"
+  } else if (weapon_fletch_choice = "Oak_Shortbow" or weapon_fletch_choice = "Oak_Longbow"){
+    stringing := 1
+    logs = "oak_logs.png"
+  } else if (weapon_fletch_choice = "Willow_Shortbow(u)" or weapon_fletch_choice = "Willow_Longbow(u)"){
+    stringing := 0
+    logs = "willow_logs.png"
+  } else if (weapon_fletch_choice = "Willow_Shortbow" or weapon_fletch_choice = "Willow_Longbow"){
+    stringing := 1
+    logs = "willow_logs.png"
+  } else if (weapon_fletch_choice = "Maple_Shortbow(u)" or weapon_fletch_choice = "Maple_Longbow(u)"){
+    stringing := 0
+    logs = "maple_logs.png"
+  } else if (weapon_fletch_choice = "Maple_Shortbow" or weapon_fletch_choice = "Maple_Longbow"){
+    stringing := 1
+    logs = "maple_logs.png"
+  } else if (weapon_fletch_choice = "Yew_Shortbow(u)" or weapon_fletch_choice = "Yew_Longbow(u)"){
+    stringing := 0
+    logs = "yew_logs.png"
+  } else if (weapon_fletch_choice = "Yew_Shortbow" or weapon_fletch_choice = "Yew_Longbow"){
+    stringing := 1
+    logs = "yew_logs.png"
+  } else if (weapon_fletch_choice = "Magic_Shortbow(u)" or weapon_fletch_choice = "Magic_Longbow(u)"){
+    stringing := 0
+    logs = "magic_logs.png"
+  } else if (weapon_fletch_choice = "Magic_Shortbow" or weapon_fletch_choice = "Magic_Longbow"){
+    stringing := 1
+    logs = "magic_logs.png"
+  }
+
   guiDebug("Starting script: fletching " weapon_fletch_choice)
   guiDebug("Asking for bank coordinates")
   askForBankCoords()
   guiDebug("Bank coordinates set, starting script")
   distributedRandSleep(1500, 3000)
-  global break_loop = 0
-  loop_errors = 0
-  Loop {
-    if (break_loop = 1){ ;Used to break out of any function when pressing F12
-      break
+  if (stringing = 0){ ;Fletching unstrung bows
+    Loop {
+      if (break_loop = 1){ ;Used to break out of any function when pressing F12
+        break
+      }
+      if (loop_errors = 5){ ;We've been messing up, exit script to not look like a bot
+        break
+        guiDebug("Failed to bank inventory 5 times, exiting script")
+      }
+      guiDebug("Rolling for antiban")
+      antiban(5)
     }
-    if (loop_errors = 5){ ;We've been messing up, exit script to not look like a bot
-      break
-      guiDebug("Failed to bank inventory 5 times, exiting script")
+  } else if (stringing = 1){ ;Stringing bows
+    Loop {
+      if (break_loop = 1){ ;Used to break out of any function when pressing F12
+        break
+      }
+      if (loop_errors = 5){ ;We've been messing up, exit script to not look like a bot
+        break
+        guiDebug("Failed to bank inventory 5 times, exiting script")
+      }
+      guiDebug("Rolling for antiban")
+      antiban(5)
     }
-    guiDebug("Rolling for antiban")
-    antiban(5)
   }
   return
 }
@@ -574,12 +646,9 @@ arrowFletching(){
   global bank_y2 ;Global variable to use for where the bank is for different bankstanding activies
   global arrow_fletch_choice
   guiDebug("Starting script: fletching " arrow_fletch_choice)
-  guiDebug("Asking for bank coordinates")
-  askForBankCoords()
-  guiDebug("Bank coordinates set, starting script")
   distributedRandSleep(1500, 3000)
   global break_loop = 0
-  loop_errors = 0
+  global loop_errors = 0
   Loop {
     if (break_loop = 1){ ;Used to break out of any function when pressing F12
       break
@@ -588,6 +657,8 @@ arrowFletching(){
       break
       guiDebug("Failed to bank inventory 5 times, exiting script")
     }
+
+
     guiDebug("Rolling for antiban")
     antiban(5)
   }
@@ -601,12 +672,9 @@ dartFletching(){
   global bank_y2 ;Global variable to use for where the bank is for different bankstanding activies
   global dart_fletch_choice
   guiDebug("Starting script: fletching " dart_fletch_choice)
-  guiDebug("Asking for bank coordinates")
-  askForBankCoords()
-  guiDebug("Bank coordinates set, starting script")
   distributedRandSleep(1500, 3000)
   global break_loop = 0
-  loop_errors = 0
+  global loop_errors = 0
   Loop {
     if (break_loop = 1){ ;Used to break out of any function when pressing F12
       break
@@ -615,8 +683,10 @@ dartFletching(){
       break
       guiDebug("Failed to bank inventory 5 times, exiting script")
     }
+
+
     guiDebug("Rolling for antiban")
-    antiban(5)
+    antiban(1)
   }
   return
 }
