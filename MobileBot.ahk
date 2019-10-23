@@ -570,40 +570,42 @@ weaponFletching(){
   global loop_errors = 0
   if (weapon_fletch_choice = "Shortbow_(u)" or weapon_fletch_choice = "Longbow_(u)"){
     stringing := 0
-    logs = "logs.png"
+    logs := "logs.png"
   } else if (weapon_fletch_choice = "Shortbow" or weapon_fletch_choice = "Longbow"){
     stringing := 1
-    logs = "logs.png"
+    logs := "logs.png"
   } else if (weapon_fletch_choice = "Oak_Shortbow(u)" or weapon_fletch_choice = "Oak_Longbow(u)"){
     stringing := 0
-    logs = "oak_logs.png"
+    logs := "oak_logs.png"
   } else if (weapon_fletch_choice = "Oak_Shortbow" or weapon_fletch_choice = "Oak_Longbow"){
     stringing := 1
-    logs = "oak_logs.png"
+    logs := "oak_logs.png"
   } else if (weapon_fletch_choice = "Willow_Shortbow(u)" or weapon_fletch_choice = "Willow_Longbow(u)"){
     stringing := 0
-    logs = "willow_logs.png"
+    logs := "willow_logs.png"
   } else if (weapon_fletch_choice = "Willow_Shortbow" or weapon_fletch_choice = "Willow_Longbow"){
     stringing := 1
-    logs = "willow_logs.png"
+    logs := "willow_logs.png"
   } else if (weapon_fletch_choice = "Maple_Shortbow(u)" or weapon_fletch_choice = "Maple_Longbow(u)"){
     stringing := 0
-    logs = "maple_logs.png"
+    logs := "maple_logs.png"
+    trans_var := 30
   } else if (weapon_fletch_choice = "Maple_Shortbow" or weapon_fletch_choice = "Maple_Longbow"){
     stringing := 1
-    logs = "maple_logs.png"
+    logs := "maple_logs.png"
+    trans_var := 30
   } else if (weapon_fletch_choice = "Yew_Shortbow(u)" or weapon_fletch_choice = "Yew_Longbow(u)"){
     stringing := 0
-    logs = "yew_logs.png"
+    logs := "yew_logs.png"
   } else if (weapon_fletch_choice = "Yew_Shortbow" or weapon_fletch_choice = "Yew_Longbow"){
     stringing := 1
-    logs = "yew_logs.png"
+    logs := "yew_logs.png"
   } else if (weapon_fletch_choice = "Magic_Shortbow(u)" or weapon_fletch_choice = "Magic_Longbow(u)"){
     stringing := 0
-    logs = "magic_logs.png"
+    logs := "magic_logs.png"
   } else if (weapon_fletch_choice = "Magic_Shortbow" or weapon_fletch_choice = "Magic_Longbow"){
     stringing := 1
-    logs = "magic_logs.png"
+    logs := "magic_logs.png"
   }
 
   guiDebug("Starting script: fletching " weapon_fletch_choice)
@@ -622,6 +624,46 @@ weaponFletching(){
       }
       guiDebug("Rolling for antiban")
       antiban(5)
+      ;Assume our bank is open now, deposit anything in inventory
+      if (click("bank_inventory.png", 50, 50, 55) = 0){ ;Successfully banked everything in our inventory
+        loop_errors = 0 ;reset our amount of errors
+        distributedRandSleep(900, 1200) ;Sleep between 1.5 to 2 ticks
+        if (click(logs, 26, 17, trans_var) = 0){ ;Successfully withdraw our logs from bank
+          distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
+          click("bank_close.png", 34, 34, 55) ;Close the bank
+          distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
+          click(logs, 26, 17, trans_var) ;Click our logs
+          distributedRandSleep(150, 300) ;Sleep between .25 to .5 tick
+          click("knife.png", 5, 11, 20) ;Click our knife
+          distributedRandSleep(900, 1200) ;Sleep between 1.5 to 2 ticks
+          if(click(weapon_fletch_choice ".png", 127, 99, 50) = 0){ ;Successfully clicked our fletching
+            guiDebug("Fletching " weapon_fletch_choice)
+            distributedRandSleep(51000, 58000) ;Sleep between 51 and 58 seconds
+          }
+          humanClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank
+          distributedRandSleep(600, 900) ;Sleep between 1 to 1.5 ticks
+        } else {
+          click(logs, 26, 17, trans_var) ;Try to wtihdraw logs
+          distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
+          click("bank_close.png", 34, 34, 55) ;Close the bank
+          distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
+          click(logs, 26, 17, trans_var) ;Click our logs
+          distributedRandSleep(150, 300) ;Sleep between .25 to .5 tick
+          click("knife.png", 5, 11, 20) ;Click our knife
+          distributedRandSleep(900, 1200) ;Sleep between 1.5 to 2 ticks
+          if(click(weapon_fletch_choice ".png", 127, 99, 50) = 0){ ;Successfully clicked our fletching
+            guiDebug("Fletching " weapon_fletch_choice)
+            distributedRandSleep(47000, 53000) ;Sleep between 47 and 53 seconds
+          }
+          humanClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank
+          distributedRandSleep(600, 900) ;Sleep between 1 to 1.5 ticks
+        }
+      } else {
+        loop_errors++ ;Increment errors, so we can break if something is wrong
+        ;We did not open our bank, so must open it
+        bellCurveClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank
+        distributedRandSleep(900, 1200) ;Sleep between 1 to 1.5 ticks
+      }
     }
   } else if (stringing = 1){ ;Stringing bows
     Loop {
