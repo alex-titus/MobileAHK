@@ -39,9 +39,11 @@ bank_y1 = 0 ;Global variable to use for where the bank is for different bankstan
 bank_y2 = 0 ;Global variable to use for where the bank is for different bankstanding activies
 
 herb_clean_choice = "" ;Global variable for cleaning herbs
+herb_potion_choice = "" ;Global variable for creating (unf) potions
 weapon_fletch_choice = "" ;Gloabl variable for fletching weapons
 arrow_fletch_choice = "" ;Gloabl variable for fletching arrows
 dart_fletch_choice = "" ;Gloabl variable for fletching darts
+
 ; =======================================================================================
 
 ; Script ================================================================================
@@ -58,11 +60,12 @@ Gui, Add, Button, x232 y189 w190 h60 , Github
 Gui, Tab, Money Making
 Gui, Add, Button, x12 y49 w190 h60 gHerbCleaning, Herb Cleaning
 Gui, Add, Button, x12 y119 w190 h60 gFletching, Fletching
-Gui, Add, Button, x12 y189 w190 h60 , Crafting
+Gui, Add, Button, x12 y189 w190 h60 gPotionMaking, (Unf) Potion Mixing
 Gui, Add, Button, x12 y259 w190 h60 , Placeholder
 Gui, Add, Button, x12 y329 w190 h60 , Placeholder
 Gui, Add, Button, x12 y399 w190 h60 , Placeholder
 Gui, Add, DropDownList, x222 y49 w210 vherb_clean_choice, guam||marrentill|tarromin|harralander|ranarr|toadflax|irit|avantoe|kwuarm|snapdragon|cadantine|lantadym|dwarf|tortsol
+Gui, Add, DropDownList, x222 y190 w210 vherb_potion_choice, guam||marrentill|tarromin|harralander|ranarr|toadflax|irit|avantoe|kwuarm|snapdragon|cadantine|lantadym|dwarf|tortsol
 Gui, Add, DropDownList, x292 y109 w140 vweapon_fletch_choice, Shortbow_(u)||Shortbow|Longbow_(u)|Longbow|Oak_Shortbow(u)|Oak_Shortbow|Oak_Longbow(u)|Oak_Longbow|Willow_Shortbow(u)|Willow_Shortbow|Willow_Longbow(u)|Willow_Longbow|Maple_Shortbow(u)|Maple_Shortbow|Maple_Longbow(u)|Maple_Longbow|Yew_Shortbow(u)|Yew_Shortbow|Yew_Longbow(u)|Yew_Longbow|Magic_Shortbow(u)|Magic_Shortbow|Magic_Longbow(u)|Magic_Longbow
 Gui, Add, DropDownList, x292 y139 w140 varrow_fletch_choice, Bronze||Iron|Steel|Mithril|Broad|Adamant|Rune|Amethyst|Dragon
 Gui, Add, DropDownList, x292 y169 w140 vdart_fletch_choice, Bronze||Iron|Steel|Mithril|Adamant|Rune|Dragon
@@ -94,9 +97,15 @@ StartScripting:
   {
     guiDebug("Please select a script and try again")
     return
-  } else if selected_script = "herb_cleaning"
+  }
+  else if selected_script = "herb_cleaning"
   {
     herbCleaning()
+    return
+  }
+  else if selected_script = "potion_making"
+  {
+    potionMaking()
     return
   }
   else if selected_script = "weapon_fletching"
@@ -122,6 +131,11 @@ HerbCleaning:
   guiDebug("Currented selected script: grimy " herb_clean_choice " cleaning")
   return
 
+PotionMaking:
+  Gui, Submit, NoHide
+  selected_script = "potion_making"
+  guiDebug("Currented selected script: " herb_potion_choice " mixing")
+  return
 
 Fletching:
   Gui, Submit, NoHide
@@ -558,6 +572,60 @@ herbCleaning(){
   return
 }
 
+potionMaking(){
+  global bank_x1 ;Global variable to use for where the bank is for different bankstanding activies
+  global bank_x2 ;Global variable to use for where the bank is for different bankstanding activies
+  global bank_y1 ;Global variable to use for where the bank is for different bankstanding activies
+  global bank_y2 ;Global variable to use for where the bank is for different bankstanding activies
+  global herb_potion_choice
+  guiDebug("Starting script: mixing " herb_potion_choice "unf")
+  guiDebug("Asking for bank coordinates")
+  askForBankCoords()
+  guiDebug("Bank coordinates set, starting script")
+  distributedRandSleep(1500, 3000)
+  global break_loop = 0
+  global loop_errors = 0
+  Loop {
+    if (break_loop = 1){ ;Used to break out of any function when pressing F12
+      break
+    }
+    if (loop_errors = 5){ ;We've been messing up, exit script to not look like a bot
+      break
+      guiDebug("Failed to bank inventory 5 times, exiting script")
+    }
+    guiDebug("Rolling for antiban")
+    antiban(2)
+    ;Assume our bank is open now, deposit anything in inventory
+    if (click("bank_inventory.png", 50, 50, 55) = 0){ ;Successfully banked everything in our inventory
+      loop_errors = 0 ;reset our amount of errors
+      distributedRandSleep(900, 1200) ;Sleep between 1.2 to 2 ticks
+      if (click("clean_" herb_potion_choice ".png", 27, 21, 55) = 0){ ;Successfully withdraw our herbs from bank
+        distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
+        click("vial_of_water.png", 14, 12, 25) ;Withdraw our water
+        distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
+        click("bank_close.png", 34, 34, 55) ;Close the bank
+        distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
+        click("clean_" herb_potion_choice ".png", 27, 21, 55) ;Click our herbs
+        distributedRandSleep(150, 300) ;Sleep between .25 to .5 tick
+        click("vial_of_water.png", 14, 12, 25) ;Click our water
+        distributedRandSleep(900, 1200) ;Sleep between 1.5 to 2 ticks
+        if(click(herb_potion_choice "_potion(unf).png", 120, 90, 50) = 0){ ;Successfully clicked our potion choice
+          guiDebug("Creating potions " herb_potion_choice)
+          distributedRandSleep(10000, 13000) ;Sleep between 51 and 58 seconds
+        }
+        humanClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank
+        distributedRandSleep(900, 1200) ;Sleep between 1.5 to 2 ticks
+      }
+    } else {
+      loop_errors++ ;Increment errors, so we can break if something is wrong
+      ;We did not open our bank, so must open it
+      bellCurveClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank
+      distributedRandSleep(900, 1200) ;Sleep between 1.5 to 2 ticks
+    }
+  }
+  return
+}
+
 weaponFletching(){
   global bank_x1 ;Global variable to use for where the bank is for different bankstanding activies
   global bank_x2 ;Global variable to use for where the bank is for different bankstanding activies
@@ -573,39 +641,33 @@ weaponFletching(){
     logs := "logs.png"
   } else if (weapon_fletch_choice = "Shortbow" or weapon_fletch_choice = "Longbow"){
     stringing := 1
-    logs := "logs.png"
   } else if (weapon_fletch_choice = "Oak_Shortbow(u)" or weapon_fletch_choice = "Oak_Longbow(u)"){
     stringing := 0
     logs := "oak_logs.png"
   } else if (weapon_fletch_choice = "Oak_Shortbow" or weapon_fletch_choice = "Oak_Longbow"){
     stringing := 1
-    logs := "oak_logs.png"
   } else if (weapon_fletch_choice = "Willow_Shortbow(u)" or weapon_fletch_choice = "Willow_Longbow(u)"){
     stringing := 0
     logs := "willow_logs.png"
   } else if (weapon_fletch_choice = "Willow_Shortbow" or weapon_fletch_choice = "Willow_Longbow"){
     stringing := 1
-    logs := "willow_logs.png"
   } else if (weapon_fletch_choice = "Maple_Shortbow(u)" or weapon_fletch_choice = "Maple_Longbow(u)"){
     stringing := 0
     logs := "maple_logs.png"
     trans_var := 30
   } else if (weapon_fletch_choice = "Maple_Shortbow" or weapon_fletch_choice = "Maple_Longbow"){
     stringing := 1
-    logs := "maple_logs.png"
     trans_var := 30
   } else if (weapon_fletch_choice = "Yew_Shortbow(u)" or weapon_fletch_choice = "Yew_Longbow(u)"){
     stringing := 0
     logs := "yew_logs.png"
   } else if (weapon_fletch_choice = "Yew_Shortbow" or weapon_fletch_choice = "Yew_Longbow"){
     stringing := 1
-    logs := "yew_logs.png"
   } else if (weapon_fletch_choice = "Magic_Shortbow(u)" or weapon_fletch_choice = "Magic_Longbow(u)"){
     stringing := 0
     logs := "magic_logs.png"
   } else if (weapon_fletch_choice = "Magic_Shortbow" or weapon_fletch_choice = "Magic_Longbow"){
     stringing := 1
-    logs := "magic_logs.png"
   }
 
   guiDebug("Starting script: fletching " weapon_fletch_choice)
@@ -636,7 +698,7 @@ weaponFletching(){
           distributedRandSleep(150, 300) ;Sleep between .25 to .5 tick
           click("knife.png", 5, 11, 20) ;Click our knife
           distributedRandSleep(900, 1200) ;Sleep between 1.5 to 2 ticks
-          if(click(weapon_fletch_choice ".png", 127, 99, 50) = 0){ ;Successfully clicked our fletching
+          if(click("Fletch_" weapon_fletch_choice ".png", 127, 99, 50) = 0){ ;Successfully clicked our fletching
             guiDebug("Fletching " weapon_fletch_choice)
             distributedRandSleep(51000, 58000) ;Sleep between 51 and 58 seconds
           }
@@ -651,7 +713,7 @@ weaponFletching(){
           distributedRandSleep(150, 300) ;Sleep between .25 to .5 tick
           click("knife.png", 5, 11, 20) ;Click our knife
           distributedRandSleep(900, 1200) ;Sleep between 1.5 to 2 ticks
-          if(click(weapon_fletch_choice ".png", 127, 99, 50) = 0){ ;Successfully clicked our fletching
+          if(click("Fletch_" weapon_fletch_choice ".png", 127, 99, 50) = 0){ ;Successfully clicked our fletching
             guiDebug("Fletching " weapon_fletch_choice)
             distributedRandSleep(47000, 53000) ;Sleep between 47 and 53 seconds
           }
@@ -666,6 +728,8 @@ weaponFletching(){
       }
     }
   } else if (stringing = 1){ ;Stringing bows
+    click("withdraw_x.png", 34, 30, 25) ;Make sure we are using withdraw_x
+    guiDebug("Here")
     Loop {
       if (break_loop = 1){ ;Used to break out of any function when pressing F12
         break
@@ -676,6 +740,48 @@ weaponFletching(){
       }
       guiDebug("Rolling for antiban")
       antiban(5)
+      ;Assume our bank is open now, deposit anything in inventory
+      if (click("bank_inventory.png", 50, 50, 55) = 0){ ;Successfully banked everything in our inventory
+        loop_errors = 0 ;reset our amount of errors
+        distributedRandSleep(900, 1200) ;Sleep between 1.5 to 2 ticks
+        if (click(weapon_fletch_choice ".png", 26, 17, trans_var) = 0){ ;Successfully withdraw our weapon from bank
+          distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
+          click("bowstring.png", 5, 11, 20) ;
+          distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
+          click("bank_close.png", 34, 34, 55) ;Close the bank
+          distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
+          click(weapon_fletch_choice ".png", 26, 17, trans_var) ;Click our (u) bow
+          distributedRandSleep(150, 300) ;Sleep between .25 to .5 tick
+          click("bowstring.png", 5, 11, 20) ;Click our knife
+          distributedRandSleep(900, 1200) ;Sleep between 1.5 to 2 ticks
+          if(click("Fletch_" weapon_fletch_choice ".png", 127, 99, 50) = 0){ ;Successfully clicked our fletching
+            guiDebug("Fletching " weapon_fletch_choice)
+            distributedRandSleep(51000, 58000) ;Sleep between 51 and 58 seconds
+          }
+          humanClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank
+          distributedRandSleep(600, 900) ;Sleep between 1 to 1.5 ticks
+        } else {
+          click(weapon_fletch_choice ".png", 26, 17, trans_var) ;Try to wtihdraw logs
+          distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
+          click("bank_close.png", 34, 34, 55) ;Close the bank
+          distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
+          click(weapon_fletch_choice ".png", 26, 17, trans_var) ;Click our logs
+          distributedRandSleep(150, 300) ;Sleep between .25 to .5 tick
+          click("knife.png", 5, 11, 20) ;Click our knife
+          distributedRandSleep(900, 1200) ;Sleep between 1.5 to 2 ticks
+          if(click("Fletch_" weapon_fletch_choice ".png", 127, 99, 50) = 0){ ;Successfully clicked our fletching
+            guiDebug("Fletching " weapon_fletch_choice)
+            distributedRandSleep(47000, 53000) ;Sleep between 47 and 53 seconds
+          }
+          humanClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank
+          distributedRandSleep(600, 900) ;Sleep between 1 to 1.5 ticks
+        }
+      } else {
+        loop_errors++ ;Increment errors, so we can break if something is wrong
+        ;We did not open our bank, so must open it
+        bellCurveClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank
+        distributedRandSleep(900, 1200) ;Sleep between 1 to 1.5 ticks
+      }
     }
   }
   return

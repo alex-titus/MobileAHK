@@ -38,7 +38,7 @@ dart_fletch_choice = "" ;Gloabl variable for fletching darts
 
 Gui, Add, Tab, x2 y-1 w440 h500 , Main|Money Making|Skilling|Custom Scripts
 Gui, Tab, Main
-Gui, Add, Button, x12 y49 w190 h60 , Herblore
+Gui, Add, Button, x12 y49 w190 h60 gHerblore, Herblore
 Gui, Add, Button, x232 y49 w190 h60 , Coordinate Helper
 Gui, Add, Button, x12 y119 w190 h60 gResizeBluestacks, Resize Bluestacks
 Gui, Add, Button, x232 y119 w190 h60 , Github
@@ -66,40 +66,24 @@ Return
 GuiClose:
 ExitApp
 
+Herblore:
+  break_loop = 0
+  return
+  
 ResizeBluestacks:
   WinMove, BlueStacks, , , , 1280, 720
   return
 
+F11::
+  break_loop = 1
+
 F12::
-  click("grimy_guam.png", 25, 25, 45)
-  Sleep 500
-  click("grimy_marrentill.png", 25, 25, 45)
-  Sleep 500
-  click("grimy_tarromin.png", 25, 25, 45)
-  Sleep 500
-  click("grimy_harralander.png", 25, 25, 45)
-  Sleep 500
-  click("grimy_ranarr.png", 25, 25, 40)
-  Sleep 500
-  click("grimy_toadflax.png", 25, 25, 40)
-  Sleep 500
-  click("grimy_irit.png", 25, 25, 40)
-  Sleep 500
-  click("grimy_avantoe.png", 25, 25, 40)
-  Sleep 500
-  click("grimy_kwuarm.png", 25, 25, 30)
-  Sleep 500
-  click("grimy_snapdragon.png", 25, 25, 30)
-  Sleep 500
-  click("grimy_cadantine.png", 25, 25, 30)
-  Sleep 500
-  click("grimy_lantadyme.png", 25, 25, 45)
-  Sleep 500
-  click("grimy_dwarf.png", 25, 25, 45)
-  Sleep 500
-  click("grimy_torstol.png", 25, 25, 45)
-  Sleep 500
-  guiDebug(output_x output_y)
+  Loop {
+    if (break_loop = 1){ ;Used to break out of any function when pressing F12
+      break
+    }
+    Click
+    }
   Return
 
 ESC::
