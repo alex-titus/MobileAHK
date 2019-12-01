@@ -540,6 +540,7 @@ herbCleaning(){
   distributedRandSleep(1500, 3000)
   global break_loop = 0
   global loop_errors = 0
+  trans_var = 55
   Loop {
     if (break_loop = 1){ ;Used to break out of any function when pressing F12
       break
@@ -554,21 +555,21 @@ herbCleaning(){
     if (click("bank_inventory.png", 50, 50, 55) = 0){ ;Successfully banked everything in our inventory
       loop_errors = 0 ;reset our amount of errors
       distributedRandSleep(600, 900) ;Sleep between 1 to 1.5 ticks
-      if (click("grimy_" herb_clean_choice ".png", 27, 21, 55) = 0){ ;Withdraw our herb from bank
+      if (click("grimy_" herb_clean_choice ".png", 27, 21, trans_var) = 0){ ;Withdraw our herb from bank
         distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
         click("bank_close.png", 34, 34, 55) ;Close the bank
         distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
         guiDebug("Cleaning herbs") ;Outputs Cleaning herbs to the gui
-        inventoryClick("grimy_" herb_clean_choice ".png", 27, 21, 55) ;Clean our inventory of herbs
+        inventoryClick("grimy_" herb_clean_choice ".png", 27, 21, trans_var) ;Clean our inventory of herbs
         bellCurveClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank ;Open our bank
         distributedRandSleep(900, 1200) ;Sleep between 1 to 1.5 ticks
       } else { ;Our last withdraw didn't work, so try again
-        click("grimy_" herb_clean_choice ".png", 27, 21, 55) ;Withdraw our herb from bank
+        click("grimy_" herb_clean_choice ".png", 27, 21, trans_var) ;Withdraw our herb from bank
         distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
         click("bank_close.png", 34, 34, 55) ;Close the bank
         distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
         guiDebug("Cleaning herbs") ;Outputs Cleaning herbs to the gui
-        inventoryClick("grimy_" herb_clean_choice ".png", 27, 21, 55) ;Clean our inventory of herbs
+        inventoryClick("grimy_" herb_clean_choice ".png", 27, 21, trans_var) ;Clean our inventory of herbs
         bellCurveClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank
         distributedRandSleep(900, 1200) ;Sleep between 1 to 1.5 ticks
       }
