@@ -37,6 +37,11 @@ bank_x1 = 0 ;Global variable to use for where the bank is for different bankstan
 bank_x2 = 0 ;Global variable to use for where the bank is for different bankstanding activies
 bank_y1 = 0 ;Global variable to use for where the bank is for different bankstanding activies
 bank_y2 = 0 ;Global variable to use for where the bank is for different bankstanding activies
+bank_interface_x1 = 0 ;Global variable to use so we only search inside of the bank for an item
+bank_interface_x2 = 0 ;Global variable to use so we only search inside of the bank for an item
+bank_interface_y1 = 0 ;Global variable to use so we only search inside of the bank for an item
+bank_interface_y2 = 0 ;Global variable to use so we only search inside of the bank for an item
+bank_coords_set = 0 ;We know if the bank has been set or not
 
 herb_clean_choice = "" ;Global variable for cleaning herbs
 herb_potion_choice = "" ;Global variable for creating (unf) potions
@@ -240,6 +245,7 @@ inventoryClick(image, size_x, size_y, trans_var){
   move_temp_y = 0 ;Will be used to start searching for next item
   randX = 0 ;Init value for randX
   randY = 0 ;Init value for randY
+  trans_var = 50
 	while (totalClicks < 28){
 		ImageSearch, output_x, output_y, move_temp_x, output_y, 1920, 1080, *TransBlack *%trans_var% %A_WorkingDir%\images\%image%
 		;guiDebug("found at x:" output_x " y:" output_y) ;Logs current coords of the item
@@ -274,6 +280,24 @@ inventoryClick(image, size_x, size_y, trans_var){
 	} ;Allows us to click every item in inventory ;Clicks all specific items in inventory
 }
 
+clickInBank(image, size_x, size_y, trans_var){
+  output_x = 0 ;ImageSearch will output x coordinates here
+  output_y = 0 ;Imagesearch will output y coordinates here
+  ImageSearch, output_x, output_y, 0, 0, 1920, 1080, *TransBlack *%trans_var% %A_WorkingDir%\images\%image%
+  if(ErrorLevel = 0){
+    ;guiDebug("found at x:" output_x " y:" output_y) ;Logs current coords of the item
+    Random, randX, 3, size_x - 2 ;Random x value increment for humanlike difference
+    Random, randY, 3, size_y - 2 ;Random y value increment for humanlike difference
+    tempX := output_x + randX ;Adds our random value to ImageSearch's found coords
+    tempY := output_y + randY ;Adds our random value to ImageSearch's found coords
+    humanClick(output_x, (output_x+size_x), output_y, (output_y+size_y))
+    return 0
+  } else if (ErrorLevel = 1){
+    ;guiDebug(image " not found")
+    return 1
+  } ;Allows us to click a single object anywhere ;Clicks a specific image on screen
+}
+
 click(image, size_x, size_y, trans_var){
   output_x = 0 ;ImageSearch will output x coordinates here
   output_y = 0 ;Imagesearch will output y coordinates here
@@ -284,13 +308,12 @@ click(image, size_x, size_y, trans_var){
     Random, randY, 3, size_y - 2 ;Random y value increment for humanlike difference
     tempX := output_x + randX ;Adds our random value to ImageSearch's found coords
     tempY := output_y + randY ;Adds our random value to ImageSearch's found coords
-    MouseMove, tempX, tempY
-    Click
+    humanClick(output_x, (output_x+size_x), output_y, (output_y+size_y))
     return 0
   } else if (ErrorLevel = 1){
     ;guiDebug(image " not found")
     return 1
-  } ;Allows us to click a single object anywhere ;Clicks a specific image on screen
+  } ;Allows us to click a single object anywhere
 }
 
 findInBank(item){
@@ -300,91 +323,18 @@ findInBank(item){
   bank_bottom_right_y = 0 ;Imagesearch will output y coordinate of bottom right corner of bank here
   item_coordinate_x = 0 ;Imagesearch will output x coordinate of item here
   item_coordinate_y = 0 ;Imagesearch will output y coordinate of item here
-  global bluestacks_top_left_x ;ImageSearch will start the search from here
-  global bluestacks_top_left_y ;ImageSearch will start the search from here
-  global bluestacks_bottom_right_x ;ImageSearch will start the search from here
-  global bluestacks_bottom_right_y ;ImageSearch will start the search from here
 
-  guiDebug("Searching for bank...")
-
-  ImageSearch, bank_top_left_x, bank_top_left_y, bluestacks_top_left_x, bluestacks_top_left_y, bluestacks_bottom_right_x, bluestacks_bottom_right_y, *50 %A_WorkingDir%\images\top_left_corner_bank.png
+  ImageSearch, item_coordinate_x, item_coordinate_y, 0, 0, 1920, 1080, *40 %A_WorkingDir%\images\%item%
   if (ErrorLevel = 0){
-    guiDebug("Top left of bank found at x:" bank_top_left_x " y:" bank_top_left_y) ;Logs coordinates of top left corner of bank
-  } else if (ErrorLevel = 1){
-    guiDebug("Unable to find top left corner of the bank...")
-  }
-
-  ImageSearch, bank_bottom_right_x, bank_bottom_right_y, bluestacks_top_left_x, bluestacks_top_left_y, bluestacks_bottom_right_x, bluestacks_bottom_right_y, *50 %A_WorkingDir%\images\bank_equipment.png
-  if (ErrorLevel = 0){
-    guiDebug("Bottom right of bank found at x:" bank_bottom_right_x " y:" bank_bottom_right_y) ;Logs coordinates of bottom right corner of bank
-  } else if (ErrorLevel = 1){
-    guiDebug("Unable to find bottom right corner of the bank...")
-  }
-
-  ImageSearch, item_coordinate_x, item_coordinate_y, bank_top_left_x, bank_top_left_y, bank_bottom_right_x, bank_bottom_right_y, *40 %A_WorkingDir%\images\%item%
-  if (ErrorLevel = 0){
-    guiDebug("Item found at x:" item_coordinate_x " y:" item_coordinate_y) ;Logs coordinates of bottom right corner of bank
     return 0
   } else if (ErrorLevel = 1){
-    guiDebug("Unable to find item in the bank...")
     return 1
-  } ;Used to find if an item is found in the bank, can also set bank coords for future use ;If you're trying to find in bank a certain item (check for 0)
-}
-
-bellCurveClick(dimension_x1, dimension_x2, dimension_y1, dimension_y2){ ;Attemps at creating standard deviation clicking
-  ;This entire function will be used as a decent antiban. It's not very human
-  ;for clicking on an object to be completely and utterly random.
-  ;Usually we will gravitate towards the center of something.
-  ;10/100 chance it's on the extreme edge (N+3 or N-3, 10%)
-  ;26/100 chance it's on the normal edge (N+2 or N-2, 26%)
-  ;64/100 chance it's within a normal range (N+1 or N-1, 64%)
-  average_x := (dimension_x1+dimension_x2)/2 ;Midpoint of the x
-  average_y := (dimension_y1+dimension_y2)/2 ;Midpoint of the y
-  distribution_x := (dimension_x2-dimension_x1)/6 ;StDev number
-  distribution_y := (dimension_y2-dimension_y1)/6 ;StDev number
-  ;MsgBox, average_x: %average_x% average_y: %average_y% distribution_x: %distribution_x% distribution_y: %distribution_y%
-  Random, random_number_x, 1, 100
-  if(random_number_x <= 5){
-    ;Generate clicking on far left
-    Random, random_x, dimension_x1, dimension_x1+distribution_x
-  } else if (random_number_x >= 95){
-    ;Generate clicking on far right
-    Random, random_x, dimension_x2-distribution_x, dimension_x2
-  } else if (random_number_x > 5) and (random_number_x < 19){
-    ;Generate clicking on moderate left
-    Random, random_x, dimension_x1+distribution_x, dimension_x1+(2*distribution_x)
-  } else if (random_number_x > 81) and (random_number_x < 95){
-    ;Generate clicking on moderate right
-    Random, random_x, dimension_x2-(2*distribution_x), dimension_x2-distribution_x
-  } else {
-    ;Generate clicking in the middle somewhere
-    Random, random_x, dimension_x1+(2*distribution_x), dimension_x2-(2*distribution_x)
-  }
-
-  Random, random_number_y, 1, 100
-  if(random_number_y < 5){
-    ;Generate clicking on far bottom
-    Random, random_y, dimension_y1, dimension_y1+distribution_y
-  } else if (random_number_y >= 95){
-    ;Generate clicking on far top
-    Random, random_y, dimension_y2-distribution_y, dimension_y2
-  } else if (random_number_y > 5) and (random_number_y < 19){
-    ;Generate clicking on moderate top
-    Random, random_y, dimension_y1+distribution_y, dimension_y1+(2*distribution_y)
-  } else if (random_number_y > 81) and (random_number_y < 95){
-    ;Generate clicking on moderate bottom
-    Random, random_y, dimension_y2-(2*distribution_y), dimension_y2-distribution_y
-  } else {
-    ;Generate clicking in the middle somewhere
-    Random, random_y, dimension_y1+(2*distribution_y), dimension_y2-(2*distribution_y)
-  }
-
-  MouseClick, left, random_x, random_y
-  return 0
+  } ;Used to find if an item is found in the bank, can also set bank coords for future use
+    ;If you're trying to find in bank a certain item (check for 0)
 }
 
 humanClick(dimension_x1, dimension_x2, dimension_y1, dimension_y2){ ;Better clicking function
-  ;Attempting to move the "hard" borders that generate with bellCurveClick
+  ;Attempting to move the "hard" borders that generate with humanClick
   average_x := (dimension_x1+dimension_x2)/2 ;Midpoint of the x
   average_y := (dimension_y1+dimension_y2)/2 ;Midpoint of the y
   radius_x := (dimension_x2-dimension_x1)/2 ;Radius of x coordinate
@@ -464,14 +414,19 @@ circleClick(x_center, y_center, circle_radius){
   x_center += Cos(angle)*(Sqrt(radius))
   y_center += Sin(angle)*(Sqrt(radius))
 
-  MouseClick, Left, x_center, y_center
+  MouseClick, Left, x_center, y_center ;Used in humanClick()
 }
 
-askForBankCoords(){ ;Asks uses for an upper left and bottom right coords
+setAllBankCoords(){ ;Asks uses for an upper left and bottom right coords for bank, and sets bank interface coords
   global bank_x1 ;Global variable to use for where the bank is for different bankstanding activies
   global bank_x2 ;Global variable to use for where the bank is for different bankstanding activies
   global bank_y1 ;Global variable to use for where the bank is for different bankstanding activies
   global bank_y2 ;Global variable to use for where the bank is for different bankstanding activies
+  global bank_interface_x1 ;Global variable to use so we only search inside of the bank for an item
+  global bank_interface_x2 ;Global variable to use so we only search inside of the bank for an item
+  global bank_interface_y1 ;Global variable to use so we only search inside of the bank for an item
+  global bank_interface_y2 ;Global variable to use so we only search inside of the bank for an item
+  global bank_coords_set ;Gloabl variable for knowing if our bank coordinates have been set or not
 
   MsgBox, ,Bank Coordinate Finder, Right click on the upper lefthand corner of the bank, then left click bottom righthand
 
@@ -479,7 +434,26 @@ askForBankCoords(){ ;Asks uses for an upper left and bottom right coords
   MouseGetPos, bank_x1, bank_y1
   KeyWait, LButton, d
   MouseGetPos, bank_x2, bank_y2
-  return
+  distributedRandSleep(900, 1500)
+
+  ImageSearch, bank_interface_x1, bank_interface_y1, 0, 0, 1920, 1080, *50 %A_WorkingDir%\images\top_left_corner_bank.png
+  if (ErrorLevel = 0){
+    guiDebug("Top left of bank found at x:" bank_interface_x1 " y:" bank_interface_y1) ;Logs coordinates of top left corner of bank
+    bank_coords_set = 1
+  } else if (ErrorLevel = 1){
+    guiDebug("Unable to find top left corner of the bank...")
+    bank_coords_set = 0
+  }
+
+  ImageSearch, bank_interface_x2, bank_interface_x2, 0, 0, 1920, 1080, *50 %A_WorkingDir%\images\bottom_right_corner_bank.png
+  if (ErrorLevel = 0){
+    guiDebug("Bottom right of bank found at x:" bank_interface_x2 " y:" bank_interface_y2) ;Logs coordinates of bottom right corner of bank
+    bank_coords_set = 1
+  } else if (ErrorLevel = 1){
+    guiDebug("Unable to find bottom right corner of the bank...")
+    bank_coords_set = 0
+    return 0
+  }
 }
 
 antiban(percentage){
@@ -532,11 +506,9 @@ herbCleaning(){
   global bank_x2 ;Global variable to use for where the bank is for different bankstanding activies
   global bank_y1 ;Global variable to use for where the bank is for different bankstanding activies
   global bank_y2 ;Global variable to use for where the bank is for different bankstanding activies
-  global herb_clean_choice
+  global herb_clean_choice ;Drop down variable from GUI to know what we are cleaning
   guiDebug("Starting script: grimy " herb_clean_choice " cleaning")
-  guiDebug("Asking for bank coordinates")
-  askForBankCoords()
-  guiDebug("Bank coordinates set, starting script")
+  setAllBankCoords()
   distributedRandSleep(1500, 3000)
   global break_loop = 0
   global loop_errors = 0
@@ -561,7 +533,7 @@ herbCleaning(){
         distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
         guiDebug("Cleaning herbs") ;Outputs Cleaning herbs to the gui
         inventoryClick("grimy_" herb_clean_choice ".png", 27, 21, trans_var) ;Clean our inventory of herbs
-        bellCurveClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank ;Open our bank
+        humanClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank ;Open our bank
         distributedRandSleep(900, 1200) ;Sleep between 1 to 1.5 ticks
       } else { ;Our last withdraw didn't work, so try again
         click("grimy_" herb_clean_choice ".png", 27, 21, trans_var) ;Withdraw our herb from bank
@@ -570,13 +542,13 @@ herbCleaning(){
         distributedRandSleep(450, 750) ;Sleep between .75 to 1.25 ticks
         guiDebug("Cleaning herbs") ;Outputs Cleaning herbs to the gui
         inventoryClick("grimy_" herb_clean_choice ".png", 27, 21, trans_var) ;Clean our inventory of herbs
-        bellCurveClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank
+        humanClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank
         distributedRandSleep(900, 1200) ;Sleep between 1 to 1.5 ticks
       }
     } else {
       loop_errors++ ;Increment errors, so we can break if something is wrong
       ;We did not open our bank, so must open it
-      bellCurveClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank
+      humanClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank
       distributedRandSleep(900, 1200) ;Sleep between 1 to 1.5 ticks
     }
   }
@@ -591,7 +563,7 @@ potionMaking(){
   global herb_potion_choice
   guiDebug("Starting script: mixing " herb_potion_choice "unf")
   guiDebug("Asking for bank coordinates")
-  askForBankCoords()
+  setAllBankCoords()
   guiDebug("Bank coordinates set, starting script")
   distributedRandSleep(1500, 3000)
   global break_loop = 0
@@ -631,7 +603,7 @@ potionMaking(){
     } else {
       loop_errors++ ;Increment errors, so we can break if something is wrong
       ;We did not open our bank, so must open it
-      bellCurveClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank
+      humanClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank
       distributedRandSleep(900, 1200) ;Sleep between 1.5 to 2 ticks
     }
   }
@@ -646,7 +618,7 @@ wineMaking(){
   global herb_potion_choice
   guiDebug("Starting script: mixing cooking jugs of wine ")
   guiDebug("Asking for bank coordinates")
-  askForBankCoords()
+  setAllBankCoords()
   guiDebug("Bank coordinates set, starting script")
   distributedRandSleep(1500, 3000)
   global break_loop = 0
@@ -684,12 +656,13 @@ wineMaking(){
     } else {
       loop_errors++ ;Increment errors, so we can break if something is wrong
       ;We did not open our bank, so must open it
-      bellCurveClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank
+      humanClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank
       distributedRandSleep(900, 1200) ;Sleep between 1.5 to 2 ticks
     }
   }
   return
 }
+
 weaponFletching(){
   global bank_x1 ;Global variable to use for where the bank is for different bankstanding activies
   global bank_x2 ;Global variable to use for where the bank is for different bankstanding activies
@@ -736,7 +709,7 @@ weaponFletching(){
 
   guiDebug("Starting script: fletching " weapon_fletch_choice)
   guiDebug("Asking for bank coordinates")
-  askForBankCoords()
+  setAllBankCoords()
   guiDebug("Bank coordinates set, starting script")
   distributedRandSleep(1500, 3000)
   trans_var = 35
@@ -788,7 +761,7 @@ weaponFletching(){
       } else {
         loop_errors++ ;Increment errors, so we can break if something is wrong
         ;We did not open our bank, so must open it
-        bellCurveClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank
+        humanClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank
         distributedRandSleep(900, 1200) ;Sleep between 1 to 1.5 ticks
       }
     }
@@ -844,7 +817,7 @@ weaponFletching(){
       } else {
         loop_errors++ ;Increment errors, so we can break if something is wrong
         ;We did not open our bank, so must open it
-        bellCurveClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank
+        humanClick(bank_x1, bank_x2, bank_y1, bank_y2) ;Open our bank
         distributedRandSleep(900, 1200) ;Sleep between 1 to 1.5 ticks
       }
     }
