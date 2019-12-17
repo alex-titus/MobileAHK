@@ -739,6 +739,7 @@ weaponFletching(){
   askForBankCoords()
   guiDebug("Bank coordinates set, starting script")
   distributedRandSleep(1500, 3000)
+  trans_var = 35
   if (stringing = 0){ ;Fletching unstrung bows
     Loop {
       if (break_loop = 1){ ;Used to break out of any function when pressing F12
@@ -762,7 +763,7 @@ weaponFletching(){
           distributedRandSleep(150, 300) ;Sleep between .25 to .5 tick
           click("knife.png", 5, 11, 20) ;Click our knife
           distributedRandSleep(900, 1200) ;Sleep between 1.5 to 2 ticks
-          if(click("Fletch_" weapon_fletch_choice ".png", 127, 99, 50) = 0){ ;Successfully clicked our fletching
+          if(click("Fletch_" weapon_fletch_choice ".png", 127, 99, trans_var) = 0){ ;Successfully clicked our fletching
             guiDebug("Fletching " weapon_fletch_choice)
             distributedRandSleep(51000, 58000) ;Sleep between 51 and 58 seconds
           }
@@ -777,7 +778,7 @@ weaponFletching(){
           distributedRandSleep(150, 300) ;Sleep between .25 to .5 tick
           click("knife.png", 5, 11, 20) ;Click our knife
           distributedRandSleep(900, 1200) ;Sleep between 1.5 to 2 ticks
-          if(click("Fletch_" weapon_fletch_choice ".png", 127, 99, 50) = 0){ ;Successfully clicked our fletching
+          if(click("Fletch_" weapon_fletch_choice ".png", 127, 99, trans_var) = 0){ ;Successfully clicked our fletching
             guiDebug("Fletching " weapon_fletch_choice)
             distributedRandSleep(47000, 53000) ;Sleep between 47 and 53 seconds
           }
