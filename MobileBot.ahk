@@ -201,9 +201,9 @@ distributedRandSleep(x, y){
   Random, random, 1, 100
   if (random >= 1 and random <= 50){
     Random, random_sleep, average_sleep-distribution_sleep, average_sleep+distribution_sleep
-  } else if (random > 50 and random <= 60){
+  } else if (random > 50 and random <= 75){
     Random, random_sleep, average_sleep-(2*distribution_sleep), average_sleep+(2*distribution_sleep)
-  } else if (random > 60 and random <= 80){
+  } else if (random > 75 and random <= 90){
     Random, random_sleep, average_sleep-(3*distribution_sleep), average_sleep+(3*distribution_sleep)
   } else {
     Random, random_sleep, average_sleep-(4*distribution_sleep), average_sleep+(4*distribution_sleep)
